@@ -1,1 +1,5 @@
 apply plugin: 'java'
+
+dependencies {
+    compile project(':lib')
+}
