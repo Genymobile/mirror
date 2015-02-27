@@ -1,5 +1,6 @@
 sample/build/*
 sample/build
+sample/.gradle
 
 lib/build/*
 lib/build/
