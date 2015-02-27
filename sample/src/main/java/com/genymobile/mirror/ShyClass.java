@@ -4,7 +4,7 @@ public class ShyClass {
 
     private int privateField;
 
-    public ShyClass(int field) {
+    private ShyClass(int field) {
         this.privateField = field;
     }
 }
