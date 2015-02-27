@@ -1,3 +1,5 @@
+.gradle
+
 sample/build/*
 sample/build
 sample/.gradle
