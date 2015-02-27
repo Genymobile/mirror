@@ -6,3 +6,6 @@ sample/.gradle
 
 lib/build/*
 lib/build/
+
+.idea/
+*.iml
