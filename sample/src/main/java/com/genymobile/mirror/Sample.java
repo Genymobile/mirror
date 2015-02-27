@@ -5,5 +5,7 @@ public class Sample {
         System.out.println("Hello Mirror!");
 
         Mirror mirror = new Mirror();
+
+        ShyClass shyClass = new ShyClass();
     }
 }
