@@ -6,6 +6,6 @@ public class Sample {
 
         Mirror mirror = new Mirror();
 
-        ShyClass shyClass = new ShyClass();
+        ShyClass shyClass = new ShyClass(1664);
     }
 }
