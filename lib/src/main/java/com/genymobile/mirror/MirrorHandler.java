@@ -33,11 +33,22 @@ public class MirrorHandler<T> implements InvocationHandler {
                 this.object = args[0];
                 ensureObjectClass();
             } else {
-                throw new MirrorException("Missing object", new Throwable());
+                throw new MirrorException("Missing object", e);
             }
         }
 
-        return null;
+        //no annotation found, try to call method
+        return invokeHiddenMethod(method, args);
+    }
+
+    private Object invokeHiddenMethod(Method method, Object[] args) {
+        try {
+            Method methodzz = clazz.getDeclaredMethod(method.getName(), getClasses(args));
+            return methodzz.invoke(this.object, args);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+            throw new MirrorException("Error while trying to invoke method", e);
+        }
     }
 
     /**
