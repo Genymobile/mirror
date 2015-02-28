@@ -48,9 +48,9 @@ public class MethodTest {
     }
 
     @Test
-    public void checkThatInstanceIsRetrieve() {
+    public void checkThatInstanceIsRetrievedWhenPassingWrapper() {
         PrivateDummy privateDummy = Mirror.create(PrivateDummy.class);
-        privateDummy.construct("BlaBla");
+        privateDummy.construct("foo");
 
         dummy.doStuff(privateDummy);
     }
