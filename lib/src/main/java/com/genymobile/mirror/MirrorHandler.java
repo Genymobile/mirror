@@ -3,6 +3,7 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
+import com.genymobile.mirror.exception.MirrorDeveloperException;
 import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.*;
@@ -69,6 +70,7 @@ public class MirrorHandler<T> implements InvocationHandler {
     }
 
     private void setField(SetField annotation, Object[] args) {
+        args = retrieveParameterObjects(args);
         try {
             Field fieldzz = clazz.getDeclaredField(annotation.value());
             fieldzz.setAccessible(true);
@@ -81,9 +83,9 @@ public class MirrorHandler<T> implements InvocationHandler {
 
     private Object invokeHiddenMethod(Method method, Object[] args) {
         try {
-            Method methodzz = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            Method methodzz = clazz.getDeclaredMethod(method.getName(), retrieveParameterTypes(method));
             methodzz.setAccessible(true);
-            return methodzz.invoke(this.object, args);
+            return methodzz.invoke(this.object, retrieveParameterObjects(args));
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
             throw new MirrorException("Error while trying to invoke method", e);
@@ -118,14 +120,63 @@ public class MirrorHandler<T> implements InvocationHandler {
     }
 
     private void buildAndStoreInstance(Method method, Object[] args) {
-        java.lang.Class[] classList = method.getParameterTypes();
+        java.lang.Class[] classList = retrieveParameterTypes(method);
         try {
             java.lang.reflect.Constructor<?> constructor = clazz.getDeclaredConstructor(classList);
             constructor.setAccessible(true);
-            this.object = constructor.newInstance(args);
+            this.object = constructor.newInstance(retrieveParameterObjects(args));
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             throw new MirrorException("Can't build object", e);
         }
+    }
+
+    private java.lang.Class[] retrieveParameterTypes(Method method) {
+        java.lang.Class[] genuineTypes = method.getParameterTypes();
+        java.lang.Class[] types = new java.lang.Class[genuineTypes.length];
+
+        for (int i = 0; i < genuineTypes.length; ++i) {
+            java.lang.Class type = genuineTypes[i];
+            Class annotation = (Class) type.getAnnotation(Class.class);
+            if (annotation != null) {
+                try {
+                    types[i] = java.lang.Class.forName(annotation.value());
+                } catch (ClassNotFoundException e) {
+                    throw new MirrorException("Cannot find class for this type.", e);
+                }
+            } else {
+                types[i] = type;
+            }
+        }
+        return types;
+    }
+
+    private java.lang.Object[] retrieveParameterObjects(Object[] genuineObject) {
+        Object[] objects = new Object[genuineObject.length];
+
+        for (int i = 0; i < objects.length; ++i) {
+            Object object = genuineObject[i];
+            Class annotation = object.getClass().getAnnotation(Class.class);
+            if (annotation != null) {
+                objects[i] = getInstance(object);
+            } else {
+                objects[i] = object;
+            }
+        }
+        return objects;
+    }
+
+    private Object getInstance(Object object) {
+        Method[] methods = object.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getAnnotation(GetInstance.class) != null) {
+                try {
+                    return method.invoke(object);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new MirrorException("Error while invoking getInstance method", e);
+                }
+            }
+        }
+        throw new MirrorDeveloperException("Please implement a GetInstance method in your wrapper Object");
     }
 }
