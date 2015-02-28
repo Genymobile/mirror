@@ -28,6 +28,10 @@ public class MirrorHandler<T> implements InvocationHandler {
             return object;
         }
 
+        if (method.getAnnotation(GetInstance.class) != null) {
+            return object;
+        }
+
         if (method.getAnnotation(SetInstance.class) != null) {
             if (args != null && args.length == 1) {
                 this.object = args[0];
