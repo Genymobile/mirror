@@ -15,4 +15,8 @@ public class PublicDummyClass {
     private static String getStaticString(char a) {
         return Character.toString(a);
     }
+
+    private void doStuff(PrivateDummyClass privateDummyClass) {
+
+    }
 }

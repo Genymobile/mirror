@@ -2,6 +2,7 @@ package com.genymobile.mirror.mock;
 
 import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
+import com.genymobile.mirror.target.PrivateDummyClass;
 
 @Class("com.genymobile.mirror.target.PublicDummyClass")
 public interface PublicDummy {
@@ -30,4 +31,6 @@ public interface PublicDummy {
 
     // Do not exist
     Object throwExceptionMethod(String string);
+
+    void doStuff(PrivateDummy privateDummy);
 }

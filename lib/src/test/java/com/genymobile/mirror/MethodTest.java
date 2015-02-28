@@ -3,6 +3,7 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.exception.MirrorException;
 import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
+import com.genymobile.mirror.target.PrivateDummyClass;
 import com.genymobile.mirror.target.PublicDummyClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,5 +45,13 @@ public class MethodTest {
         String result = dummy.getStaticString('b');
 
         assert("b".equals(result));
+    }
+
+    @Test
+    public void checkThatInstanceIsRetrieve() {
+        PrivateDummy privateDummy = Mirror.create(PrivateDummy.class);
+        privateDummy.construct("BlaBla");
+
+        dummy.doStuff(privateDummy);
     }
 }
