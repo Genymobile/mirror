@@ -3,7 +3,6 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
-import com.genymobile.mirror.exception.MirrorDeveloperException;
 import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.*;
@@ -22,7 +21,7 @@ public class MirrorHandler<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        ensureClass(proxy);
+        ensureClass();
 
         if (method.getAnnotation(Constructor.class) != null) {
             buildAndStoreInstance(method, args);
@@ -96,9 +95,8 @@ public class MirrorHandler<T> implements InvocationHandler {
      * Instantiate the class to mirror if null
      * Look for Class annotation and read value if found
      *
-     * @param proxy
      */
-    private void ensureClass(Object proxy) {
+    private void ensureClass() {
         if (clazz ==  null) {
             Class annotationClass = proxyClass.getAnnotation(Class.class);
             if (annotationClass != null ) {
@@ -136,16 +134,14 @@ public class MirrorHandler<T> implements InvocationHandler {
         java.lang.Class[] types = new java.lang.Class[genuineTypes.length];
 
         for (int i = 0; i < genuineTypes.length; ++i) {
-            java.lang.Class type = genuineTypes[i];
-            Class annotation = (Class) type.getAnnotation(Class.class);
+            types[i] = genuineTypes[i];
+            Class annotation = (Class) types[i].getAnnotation(Class.class);
             if (annotation != null) {
                 try {
                     types[i] = java.lang.Class.forName(annotation.value());
                 } catch (ClassNotFoundException e) {
                     throw new MirrorException("Cannot find class for this type.", e);
                 }
-            } else {
-                types[i] = type;
             }
         }
         return types;
@@ -153,19 +149,13 @@ public class MirrorHandler<T> implements InvocationHandler {
 
     private java.lang.Object[] retrieveParameterObjects(Object[] genuineObject) {
         Object[] objects = new Object[genuineObject.length];
-
         for (int i = 0; i < objects.length; ++i) {
-            Object object = genuineObject[i];
-            if (Proxy.isProxyClass(object.getClass())) {
-                InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
-
+            objects[i] = genuineObject[i];
+            if (Proxy.isProxyClass(objects[i].getClass())) {
+                InvocationHandler invocationHandler = Proxy.getInvocationHandler(objects[i]);
                 if (invocationHandler instanceof MirrorHandler) {
                     objects[i] = ((MirrorHandler) invocationHandler).getInstance();
-                } else {
-                    objects[i] = object;
                 }
-            } else {
-                objects[i] = object;
             }
         }
         return objects;
