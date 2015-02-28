@@ -1,5 +1,7 @@
 apply plugin: 'java'
 
+targetCompatibility '1.7'
+
 dependencies {
     testCompile 'junit:junit:4.7'
 }
