@@ -46,6 +46,7 @@ public class MirrorTest {
         publicDummy.setInstance(instance);
     }
 
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     @Test
@@ -55,5 +56,14 @@ public class MirrorTest {
         expectedException.expect(MirrorException.class);
         expectedException.expectMessage("Class doesn't match");
         publicDummy.setInstance(instance);
+    }
+
+    @Test
+    public void checkThatCallingGetInstanceAfterSetInstanceReturnCorrectObject() {
+        PublicDummyClass instance = new PublicDummyClass();
+
+        publicDummy.setInstance(instance);
+
+        assert(instance == publicDummy.getInstance());
     }
 }
