@@ -53,7 +53,8 @@ public class MirrorHandler<T> implements InvocationHandler {
     private void buildAndStoreInstance(Object[] args) {
         java.lang.Class[] classList = getClasses(args);
         try {
-            java.lang.reflect.Constructor<?> constructor = clazz.getConstructor(classList);
+            java.lang.reflect.Constructor<?> constructor = clazz.getDeclaredConstructor(classList);
+            constructor.setAccessible(true);
             this.object = constructor.newInstance(args);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
