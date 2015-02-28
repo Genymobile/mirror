@@ -20,7 +20,7 @@ public class FieldTest {
     }
 
     @Test
-    public void checkThatSettingAnExisingFieldDoNotThrowsExceptions() {
+    public void checkThatSettingAnExistingFieldDoNotThrowsExceptions() {
         dummy.setField("Hotline Miami");
     }
 
@@ -29,7 +29,7 @@ public class FieldTest {
     @Test
     public void checkThatSettingANoNExistingFieldThrowException() {
         expectedException.expect(MirrorException.class);
-        expectedException.expectMessage("Error while trying to access field.");
+        expectedException.expectMessage("Error while trying to set field.");
 
         dummy.setDoNotExist("Oh noes!");
     }
