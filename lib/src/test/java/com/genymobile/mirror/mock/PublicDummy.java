@@ -6,6 +6,9 @@ import com.genymobile.mirror.annotation.Class;
 @Class("com.genymobile.mirror.target.PublicDummyClass")
 public interface PublicDummy {
 
+    @GetInstance
+    Object getInstance();
+
     @SetInstance
     void setInstance(Object instance);
 
