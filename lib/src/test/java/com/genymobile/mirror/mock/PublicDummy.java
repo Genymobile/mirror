@@ -17,6 +17,8 @@ public interface PublicDummy {
 
     String getString(int i);
 
+    String getStaticString(char a);
+
     // Do not exist
     Object throwExceptionMethod(String string);
 }

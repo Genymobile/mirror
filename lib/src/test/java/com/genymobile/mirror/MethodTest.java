@@ -36,4 +36,13 @@ public class MethodTest {
 
         dummy.throwExceptionMethod(":(");
     }
+
+    @Test
+    public void checkThatCallingAStaticMethodIsWorking() {
+        dummy.setInstance(null);
+
+        String result = dummy.getStaticString('b');
+
+        assert("e".equals(result));
+    }
 }
