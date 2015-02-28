@@ -8,4 +8,8 @@ public interface PublicDummy {
     @SetInstance
     void setInstance(Object instance);
 
+    String getString(int i);
+
+    // Do not exist
+    Object throwExceptionMethod(String string);
 }
