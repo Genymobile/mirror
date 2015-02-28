@@ -156,9 +156,14 @@ public class MirrorHandler<T> implements InvocationHandler {
 
         for (int i = 0; i < objects.length; ++i) {
             Object object = genuineObject[i];
-            Class annotation = object.getClass().getAnnotation(Class.class);
-            if (annotation != null) {
-                objects[i] = getInstance(object);
+            if (Proxy.isProxyClass(object.getClass())) {
+                InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
+
+                if (invocationHandler instanceof MirrorHandler) {
+                    objects[i] = ((MirrorHandler) invocationHandler).getInstance();
+                } else {
+                    objects[i] = object;
+                }
             } else {
                 objects[i] = object;
             }
@@ -166,17 +171,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         return objects;
     }
 
-    private Object getInstance(Object object) {
-        Method[] methods = object.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getAnnotation(GetInstance.class) != null) {
-                try {
-                    return method.invoke(object);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new MirrorException("Error while invoking getInstance method", e);
-                }
-            }
-        }
-        throw new MirrorDeveloperException("Please implement a GetInstance method in your wrapper Object");
+    private Object getInstance() {
+        return this.object;
     }
 }
