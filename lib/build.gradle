@@ -1,6 +1,24 @@
 apply plugin: 'java'
 
-targetCompatibility '1.7'
+version = '1.0'
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+task packageToJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Mirror Library',
+                'Implementation-Version': version,
+                'Main-Class': 'com.genymobile.mirror.Mirror'
+    }
+
+    baseName = 'Mirror'
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
 
 dependencies {
     testCompile 'junit:junit:4.7'
