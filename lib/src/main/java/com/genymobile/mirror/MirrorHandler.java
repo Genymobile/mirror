@@ -3,6 +3,7 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
 import com.genymobile.mirror.annotation.SetInstance;
+import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.*;
 
@@ -32,7 +33,7 @@ public class MirrorHandler<T> implements InvocationHandler {
                 this.object = args[0];
                 ensureObjectClass();
             } else {
-                //  TODO throw runtime
+                throw new MirrorException("Missing object", new Throwable());
             }
         }
 
@@ -62,7 +63,7 @@ public class MirrorHandler<T> implements InvocationHandler {
 
     private void ensureObjectClass() {
         if (object.getClass() != clazz) {
-            // TODO throw dev error
+            throw new MirrorException("Class doesn't match", new Throwable());
         }
     }
 
