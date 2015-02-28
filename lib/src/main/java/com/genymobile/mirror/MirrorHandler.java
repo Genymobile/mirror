@@ -72,8 +72,8 @@ public class MirrorHandler<T> implements InvocationHandler {
         try {
             Field fieldzz = clazz.getDeclaredField(annotation.value());
             fieldzz.setAccessible(true);
-            fieldzz.set(this.object, args[0]); // todo ...
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fieldzz.set(this.object, args[0]);
+        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
             throw new MirrorException("Error while trying to set field.", e);
         }
