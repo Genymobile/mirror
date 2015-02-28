@@ -55,7 +55,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         }
 
         //no annotation found, try to call method
-        return invokeHiddenMethod(method, args);
+        return invokeMethod(method, args);
     }
 
     private Object getField(GetField getField) {
@@ -81,7 +81,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         }
     }
 
-    private Object invokeHiddenMethod(Method method, Object[] args) {
+    private Object invokeMethod(Method method, Object[] args) {
         try {
             Method methodzz = clazz.getDeclaredMethod(method.getName(), retrieveParameterTypes(method));
             methodzz.setAccessible(true);
