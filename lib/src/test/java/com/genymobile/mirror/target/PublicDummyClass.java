@@ -2,7 +2,7 @@ package com.genymobile.mirror.target;
 
 public class PublicDummyClass {
 
-    private String field;
+    private String field = "iam field";
 
     public PublicDummyClass() {
 

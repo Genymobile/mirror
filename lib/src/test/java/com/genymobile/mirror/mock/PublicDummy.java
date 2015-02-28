@@ -15,6 +15,12 @@ public interface PublicDummy {
     @SetField("do_not_exist")
     void setDoNotExist(String string);
 
+    @GetField("field")
+    String readField();
+
+    @GetField("unknownField")
+    Object readUnknownField();
+
     String getString(int i);
 
     // Do not exist

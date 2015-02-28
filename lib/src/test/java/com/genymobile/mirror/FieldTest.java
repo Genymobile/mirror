@@ -12,6 +12,9 @@ public class FieldTest {
 
     private PublicDummy dummy;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Before
     public void init() {
         PublicDummyClass dummyClass = new PublicDummyClass();
@@ -23,9 +26,6 @@ public class FieldTest {
     public void checkThatSettingAnExistingFieldDoNotThrowsExceptions() {
         dummy.setField("Hotline Miami");
     }
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     @Test
     public void checkThatSettingANoNExistingFieldThrowException() {
         expectedException.expect(MirrorException.class);
@@ -34,4 +34,23 @@ public class FieldTest {
         dummy.setDoNotExist("Oh noes!");
     }
 
+    @Test
+    public void checkThatGettingAnExistingFieldDoNotThrowsExceptions() {
+        Object object = dummy.readField();
+    }
+
+    @Test
+    public void checkThatGettingAnExistingFieldReturnsProperObject() {
+        String field = dummy.readField();
+
+        assert(field.equals("iam field"));
+    }
+
+    @Test
+    public void checkThatGettingANoNExistingFieldThrowException() {
+        expectedException.expect(MirrorException.class);
+        expectedException.expectMessage("Error while trying to get field.");
+
+        dummy.readUnknownField();
+    }
 }
