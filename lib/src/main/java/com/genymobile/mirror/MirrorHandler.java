@@ -1,17 +1,16 @@
 package com.genymobile.mirror;
 
-import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
+import com.genymobile.mirror.annotation.Constructor;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 
 public class MirrorHandler<T> implements InvocationHandler {
 
     private java.lang.Class<?> clazz; //class to mirror
     private java.lang.Class<T> proxyClass; //interface created by user
 
-    private Object mirroredObject; //target object
+    private Object object; //target object
 
     public MirrorHandler(java.lang.Class<T> proxyClass) {
         this.proxyClass = proxyClass;
@@ -23,7 +22,8 @@ public class MirrorHandler<T> implements InvocationHandler {
         ensureClass(proxy);
 
         if (method.getAnnotation(Constructor.class) != null) {
-            buildAndStoreInstance(proxy, args);
+            buildAndStoreInstance(args);
+            return object;
         }
 
         return null;
@@ -50,6 +50,30 @@ public class MirrorHandler<T> implements InvocationHandler {
         }
     }
 
-    private void buildAndStoreInstance(Object proxy, Object[] args) {
+    private void buildAndStoreInstance(Object[] args) {
+        java.lang.Class[] classList = getClasses(args);
+        try {
+            java.lang.reflect.Constructor<?> constructor = clazz.getConstructor(classList);
+            this.object = constructor.newInstance(args);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            //todo:
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private java.lang.Class[] getClasses(Object[] objects) {
+        java.lang.Class[] classes = new java.lang.Class[objects.length];
+
+        for(int i=0 ; i < objects.length ; i++) {
+            classes[i] = objects[i].getClass();
+        }
+
+        return classes;
     }
 }
