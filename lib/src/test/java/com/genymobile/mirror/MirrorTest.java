@@ -36,7 +36,7 @@ public class MirrorTest {
     public void checkThatCallingConstructReturnAValidInstance() {
         Object object = dummy.construct("yolo");
 
-        assert(object.getClass().getName().equals("com.genymobile.mirror.target.DummyClass"));
+        assert(object.getClass().getName().equals("com.genymobile.mirror.target.PrivateDummyClass"));
     }
 
     @Test
