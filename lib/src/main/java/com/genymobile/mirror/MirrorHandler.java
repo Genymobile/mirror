@@ -32,6 +32,7 @@ public class MirrorHandler<T> implements InvocationHandler {
             if (args != null && args.length == 1) {
                 this.object = args[0];
                 ensureObjectClass();
+                return this.object;
             } else {
                 throw new MirrorException("Missing object", new Throwable());
             }
