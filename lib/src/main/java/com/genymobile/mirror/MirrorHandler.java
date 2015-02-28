@@ -33,7 +33,7 @@ public class MirrorHandler<T> implements InvocationHandler {
                 this.object = args[0];
                 ensureObjectClass();
             } else {
-                throw new MirrorException("Missing object", e);
+                throw new MirrorException("Missing object", new Throwable());
             }
         }
 
@@ -66,7 +66,7 @@ public class MirrorHandler<T> implements InvocationHandler {
                     clazz = java.lang.Class.forName(clazzName);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
-                    //todo throw MirrorExceptio
+                    throw new MirrorException("Class not found", e);
                 }
             }
         }
