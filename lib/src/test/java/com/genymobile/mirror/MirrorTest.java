@@ -17,4 +17,18 @@ public class MirrorTest {
     public void checkThatDummyClassIsNotNull() {
         assert(dummy != null);
     }
+
+    @Test
+    public void checkThatCallingConstructReturnAnNonNullInstance() {
+        Object object = dummy.construct("yolo");
+
+        assert(object != null);
+    }
+
+    @Test
+    public void checkThatCallingConstructReturnAValidInstance() {
+        Object object = dummy.construct("yolo");
+
+        assert(object.getClass().getName().equals("com.genymobile.mirror.target.DummyClass"));
+    }
 }
