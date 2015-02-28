@@ -108,7 +108,7 @@ public class MirrorHandler<T> implements InvocationHandler {
     }
 
     private void ensureObjectClass() {
-        if (object.getClass() != clazz) {
+        if (object != null && object.getClass() != clazz) {
             throw new MirrorException("Class doesn't match", new Throwable());
         }
     }
