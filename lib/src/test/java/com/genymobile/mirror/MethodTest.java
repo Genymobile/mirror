@@ -43,6 +43,6 @@ public class MethodTest {
 
         String result = dummy.getStaticString('b');
 
-        assert("e".equals(result));
+        assert("b".equals(result));
     }
 }
