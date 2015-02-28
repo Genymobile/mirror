@@ -7,4 +7,12 @@ public class ShyClass {
     private ShyClass(int field) {
         this.privateField = field;
     }
+
+    public String privateFieldToString() {
+        return String.valueOf(privateField);
+    }
+
+    private String sumUp(int value) {
+        return "The result is " + (privateField + value);
+    }
 }
