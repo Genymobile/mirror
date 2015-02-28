@@ -3,10 +3,10 @@ package com.genymobile.mirror.mock;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
 
-@Class("com.genymobile.mirror.taget.DummyClass")
+@Class("com.genymobile.mirror.target.DummyClass")
 public interface Dummy {
 
     @Constructor
-    void construct(String string);
+    Object construct(String string);
 
 }
