@@ -2,6 +2,7 @@ package com.genymobile.mirror;
 
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
+import com.genymobile.mirror.annotation.SetField;
 import com.genymobile.mirror.annotation.SetInstance;
 import com.genymobile.mirror.exception.MirrorException;
 
@@ -38,8 +39,23 @@ public class MirrorHandler<T> implements InvocationHandler {
             }
         }
 
+        if (method.getAnnotation(SetField.class) != null) {
+            setField(proxyClass.getAnnotation(SetField.class));
+        }
+
         //no annotation found, try to call method
         return invokeHiddenMethod(method, args);
+    }
+
+    private void setField(SetField annotation) {
+        try {
+            Field fieldzz = clazz.getDeclaredField(annotation.value());
+            fieldzz.setAccessible(true);
+            fieldzz.set(this.object, annotation.value());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+            throw new MirrorException("Field doesn't exist", e);
+        }
     }
 
     private Object invokeHiddenMethod(Method method, Object[] args) {
