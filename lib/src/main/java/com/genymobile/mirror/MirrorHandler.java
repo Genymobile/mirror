@@ -39,22 +39,24 @@ public class MirrorHandler<T> implements InvocationHandler {
             }
         }
 
-        if (method.getAnnotation(SetField.class) != null) {
-            setField(proxyClass.getAnnotation(SetField.class));
+        SetField setField = method.getAnnotation(SetField.class);
+        if (setField != null) {
+            setField(setField, args);
+            return null;
         }
 
         //no annotation found, try to call method
         return invokeHiddenMethod(method, args);
     }
 
-    private void setField(SetField annotation) {
+    private void setField(SetField annotation, Object[] args) {
         try {
             Field fieldzz = clazz.getDeclaredField(annotation.value());
             fieldzz.setAccessible(true);
-            fieldzz.set(this.object, annotation.value());
+            fieldzz.set(this.object, args[0]); // todo ...
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
-            throw new MirrorException("Field doesn't exist", e);
+            throw new MirrorException("Error while trying to access field.", e);
         }
     }
 
