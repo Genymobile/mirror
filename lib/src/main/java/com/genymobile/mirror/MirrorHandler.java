@@ -40,7 +40,7 @@ public class MirrorHandler<T> implements InvocationHandler {
     }
 
     /**
-     * Instanciate the class to mirror if null
+     * Instantiate the class to mirror if null
      * Look for Class annotation and read value if found
      *
      * @param proxy
