@@ -84,15 +84,9 @@ public class MirrorHandler<T> implements InvocationHandler {
             java.lang.reflect.Constructor<?> constructor = clazz.getDeclaredConstructor(classList);
             constructor.setAccessible(true);
             this.object = constructor.newInstance(args);
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
-            //todo:
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new MirrorException("Can't build object", e);
         }
     }
 
