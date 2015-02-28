@@ -1,9 +1,8 @@
 package com.genymobile.mirror;
 
+import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
-import com.genymobile.mirror.annotation.SetField;
-import com.genymobile.mirror.annotation.SetInstance;
 import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.*;
@@ -45,8 +44,24 @@ public class MirrorHandler<T> implements InvocationHandler {
             return null;
         }
 
+        GetField getField = method.getAnnotation(GetField.class);
+        if (getField != null) {
+            return getField(getField);
+        }
+
         //no annotation found, try to call method
         return invokeHiddenMethod(method, args);
+    }
+
+    private Object getField(GetField getField) {
+        try {
+            Field fieldzz = clazz.getDeclaredField(getField.value());
+            fieldzz.setAccessible(true);
+            return fieldzz.get(this.object);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+            throw new MirrorException("Error while trying to get field.", e);
+        }
     }
 
     private void setField(SetField annotation, Object[] args) {
@@ -56,7 +71,7 @@ public class MirrorHandler<T> implements InvocationHandler {
             fieldzz.set(this.object, args[0]); // todo ...
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
-            throw new MirrorException("Error while trying to access field.", e);
+            throw new MirrorException("Error while trying to set field.", e);
         }
     }
 
