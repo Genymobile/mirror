@@ -2,6 +2,7 @@ package com.genymobile.mirror;
 
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
+import com.genymobile.mirror.annotation.SetInstance;
 
 import java.lang.reflect.*;
 
@@ -26,6 +27,15 @@ public class MirrorHandler<T> implements InvocationHandler {
             return object;
         }
 
+        if (method.getAnnotation(SetInstance.class) != null) {
+            if (args != null && args.length == 1) {
+                this.object = args[0];
+                ensureObjectClass();
+            } else {
+                //  TODO throw runtime
+            }
+        }
+
         return null;
     }
 
@@ -47,6 +57,12 @@ public class MirrorHandler<T> implements InvocationHandler {
                     //todo throw MirrorExceptio
                 }
             }
+        }
+    }
+
+    private void ensureObjectClass() {
+        if (object.getClass() != clazz) {
+            // TODO throw dev error
         }
     }
 
