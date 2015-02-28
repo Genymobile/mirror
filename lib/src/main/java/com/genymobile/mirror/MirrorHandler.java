@@ -24,7 +24,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         ensureClass(proxy);
 
         if (method.getAnnotation(Constructor.class) != null) {
-            buildAndStoreInstance(args);
+            buildAndStoreInstance(method, args);
             return object;
         }
 
@@ -44,7 +44,8 @@ public class MirrorHandler<T> implements InvocationHandler {
 
     private Object invokeHiddenMethod(Method method, Object[] args) {
         try {
-            Method methodzz = clazz.getDeclaredMethod(method.getName(), getClasses(args));
+            Method methodzz = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            methodzz.setAccessible(true);
             return methodzz.invoke(this.object, args);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
@@ -79,8 +80,8 @@ public class MirrorHandler<T> implements InvocationHandler {
         }
     }
 
-    private void buildAndStoreInstance(Object[] args) {
-        java.lang.Class[] classList = getClasses(args);
+    private void buildAndStoreInstance(Method method, Object[] args) {
+        java.lang.Class[] classList = method.getParameterTypes();
         try {
             java.lang.reflect.Constructor<?> constructor = clazz.getDeclaredConstructor(classList);
             constructor.setAccessible(true);
@@ -89,15 +90,5 @@ public class MirrorHandler<T> implements InvocationHandler {
             e.printStackTrace();
             throw new MirrorException("Can't build object", e);
         }
-    }
-
-    private java.lang.Class[] getClasses(Object[] objects) {
-        java.lang.Class[] classes = new java.lang.Class[objects.length];
-
-        for(int i=0 ; i < objects.length ; i++) {
-            classes[i] = objects[i].getClass();
-        }
-
-        return classes;
     }
 }
