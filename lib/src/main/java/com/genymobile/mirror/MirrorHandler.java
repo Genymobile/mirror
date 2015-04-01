@@ -170,15 +170,20 @@ public class MirrorHandler<T> implements InvocationHandler {
         return this.object;
     }
 
-    private boolean isWrapperClass(java.lang.Class clazz) {
-        return clazz.getAnnotation(clazz) != null;
+    private Object wrapResult(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
+        if (isWrapperClass(clazz)) {
+            Object object = Mirror.create(clazz);
+            Method setInstance = findSetInstanceMethod(clazz);
+            setInstance.invoke(object, result);
+            return object;
+        } else {
+            return result;
+        }
+
     }
 
-    private Object wrapResult(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
-        Object object = Mirror.create(clazz);
-        Method setInstance = findSetInstanceMethod(clazz);
-        setInstance.invoke(object, result);
-        return object;
+    private boolean isWrapperClass(java.lang.Class clazz) {
+        return clazz.getAnnotation(Class.class) != null;
     }
 
     private Method findSetInstanceMethod(java.lang.Class clazz) {
