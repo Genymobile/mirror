@@ -3,6 +3,7 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.exception.MirrorException;
 import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
+import com.genymobile.mirror.target.PrivateDummyClass;
 import com.genymobile.mirror.target.PublicDummyClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,5 +66,14 @@ public class MirrorTest {
         publicDummy.setInstance(instance);
 
         assert(instance == publicDummy.getInstance());
+    }
+
+    @Test
+    public void checkThatCallingAMethodReturningAWrapperCorrectlyWrapTheResult() {
+        PublicDummy result = dummy.getPublicDummyInstance();
+
+        assert(result != null);
+        assert(result.getInstance() != null);
+        assert(PublicDummyClass.class.equals(result.getInstance().getClass()));
     }
 }
