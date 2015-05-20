@@ -26,6 +26,7 @@ public class FieldTest {
     public void checkThatSettingAnExistingFieldDoNotThrowsExceptions() {
         dummy.setField("Hotline Miami");
     }
+
     @Test
     public void checkThatSettingANoNExistingFieldThrowException() {
         expectedException.expect(MirrorException.class);

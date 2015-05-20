@@ -3,6 +3,8 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
+import com.genymobile.mirror.annotation.SetInstance;
+import com.genymobile.mirror.exception.MirrorDeveloperException;
 import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.*;
@@ -84,7 +86,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         try {
             Method methodzz = clazz.getDeclaredMethod(method.getName(), retrieveParameterTypes(method));
             methodzz.setAccessible(true);
-            return methodzz.invoke(this.object, retrieveParameterObjects(args));
+            return wrapResult(method.getReturnType(), methodzz.invoke(this.object, retrieveParameterObjects(args)));
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
             throw new MirrorException("Error while trying to invoke method", e);
@@ -148,6 +150,9 @@ public class MirrorHandler<T> implements InvocationHandler {
     }
 
     private java.lang.Object[] retrieveParameterObjects(Object[] genuineObject) {
+        if (genuineObject == null) {
+            return genuineObject;
+        }
         Object[] objects = new Object[genuineObject.length];
         for (int i = 0; i < objects.length; ++i) {
             objects[i] = genuineObject[i];
@@ -163,5 +168,30 @@ public class MirrorHandler<T> implements InvocationHandler {
 
     private Object getInstance() {
         return this.object;
+    }
+
+    private Object wrapResult(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
+        if (isWrapperClass(clazz)) {
+            Object object = Mirror.create(clazz);
+            Method setInstance = findSetInstanceMethod(clazz);
+            setInstance.invoke(object, result);
+            return object;
+        } else {
+            return result;
+        }
+
+    }
+
+    private boolean isWrapperClass(java.lang.Class clazz) {
+        return clazz.getAnnotation(Class.class) != null;
+    }
+
+    private Method findSetInstanceMethod(java.lang.Class clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getAnnotation(SetInstance.class) != null) {
+                return method;
+            }
+        }
+        throw new MirrorDeveloperException("The class " + clazz.getName() + " has no setInstance() methods so we cannot wrap any result.");
     }
 }
