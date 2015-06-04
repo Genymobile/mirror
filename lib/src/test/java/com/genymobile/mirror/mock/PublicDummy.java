@@ -1,8 +1,10 @@
 package com.genymobile.mirror.mock;
 
-import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
-import com.genymobile.mirror.target.PrivateDummyClass;
+import com.genymobile.mirror.annotation.GetField;
+import com.genymobile.mirror.annotation.GetInstance;
+import com.genymobile.mirror.annotation.SetField;
+import com.genymobile.mirror.annotation.SetInstance;
 
 @Class("com.genymobile.mirror.target.PublicDummyClass")
 public interface PublicDummy {
@@ -22,12 +24,20 @@ public interface PublicDummy {
     @GetField("field")
     String readField();
 
+    @GetField("array")
+    String[] readArray();
+
+    @GetField("dummyArray")
+    PrivateDummy[] readWrappedArray();
+
     @GetField("unknownField")
     Object readUnknownField();
 
     String getString(int i);
 
     String getStaticString(char a);
+
+    PrivateDummy[] getDummyArray();
 
     // Do not exist
     Object throwExceptionMethod(String string);

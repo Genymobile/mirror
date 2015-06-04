@@ -1,11 +1,11 @@
 package com.genymobile.mirror.target;
 
-import com.genymobile.mirror.mock.PublicDummy;
-
 public class PrivateDummyClass {
 
-    private PrivateDummyClass(String string) {
+    protected PrivateDummyClass() {
+    }
 
+    private PrivateDummyClass(String string) {
     }
 
     private static PublicDummyClass getPublicDummyInstance() {

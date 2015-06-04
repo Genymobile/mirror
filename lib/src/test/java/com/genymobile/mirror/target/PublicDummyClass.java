@@ -4,12 +4,19 @@ public class PublicDummyClass {
 
     private String field = "iam field";
 
-    public PublicDummyClass() {
+    private String[] array = {};
 
+    private PrivateDummyClass[] dummyArray = new PrivateDummyClass[] { new PrivateDummyClass(), new PrivateDummyClass()};
+
+    public PublicDummyClass() {
     }
 
     private String getString(int i) {
         return "Hello World!";
+    }
+
+    private PrivateDummyClass[] getDummyArray() {
+        return dummyArray;
     }
 
     private static String getStaticString(char a) {
@@ -17,6 +24,5 @@ public class PublicDummyClass {
     }
 
     private void doStuff(PrivateDummyClass privateDummyClass) {
-
     }
 }

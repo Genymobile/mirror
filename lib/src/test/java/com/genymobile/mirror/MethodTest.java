@@ -3,7 +3,6 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.exception.MirrorException;
 import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
-import com.genymobile.mirror.target.PrivateDummyClass;
 import com.genymobile.mirror.target.PublicDummyClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,5 +52,13 @@ public class MethodTest {
         privateDummy.construct("foo");
 
         dummy.doStuff(privateDummy);
+    }
+
+    @Test
+    public void checkThatReturnedArraysAreCorrect() {
+        PrivateDummy[] array = dummy.getDummyArray();
+
+        assert(array.getClass() == PrivateDummy[].class);
+        assert(array.length == 2);
     }
 }
