@@ -3,7 +3,6 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.exception.MirrorException;
 import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
-import com.genymobile.mirror.target.PrivateDummyClass;
 import com.genymobile.mirror.target.PublicDummyClass;
 import org.junit.Before;
 import org.junit.Rule;

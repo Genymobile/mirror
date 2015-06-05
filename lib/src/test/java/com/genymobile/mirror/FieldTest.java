@@ -1,6 +1,7 @@
 package com.genymobile.mirror;
 
 import com.genymobile.mirror.exception.MirrorException;
+import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
 import com.genymobile.mirror.target.PublicDummyClass;
 import org.junit.Before;
@@ -38,6 +39,22 @@ public class FieldTest {
     @Test
     public void checkThatGettingAnExistingFieldDoNotThrowsExceptions() {
         Object object = dummy.readField();
+    }
+
+    @Test
+    public void checkThatRetrievingAnArrayReturnsAnArray() {
+        Object array = dummy.readArray();
+
+        assert(array.getClass().isArray());
+    }
+
+    @Test
+    public void checkThatRetrievingAnArrayWrapsObjects() {
+        Object array = dummy.readWrappedArray();
+
+        assert(array.getClass().isArray());
+        assert(array.getClass().getComponentType() == PrivateDummy.class);
+        assert(((Object[]) array).length == 2);
     }
 
     @Test

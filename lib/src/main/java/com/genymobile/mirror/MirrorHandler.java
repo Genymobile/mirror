@@ -1,13 +1,20 @@
 package com.genymobile.mirror;
 
-import com.genymobile.mirror.annotation.*;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
+import com.genymobile.mirror.annotation.GetField;
+import com.genymobile.mirror.annotation.GetInstance;
+import com.genymobile.mirror.annotation.SetField;
 import com.genymobile.mirror.annotation.SetInstance;
 import com.genymobile.mirror.exception.MirrorDeveloperException;
 import com.genymobile.mirror.exception.MirrorException;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class MirrorHandler<T> implements InvocationHandler {
 
@@ -52,19 +59,19 @@ public class MirrorHandler<T> implements InvocationHandler {
 
         GetField getField = method.getAnnotation(GetField.class);
         if (getField != null) {
-            return getField(getField);
+            return getField(getField, method);
         }
 
         //no annotation found, try to call method
         return invokeMethod(method, args);
     }
 
-    private Object getField(GetField getField) {
+    private Object getField(GetField getField, Method method) {
         try {
             Field fieldzz = clazz.getDeclaredField(getField.value());
             fieldzz.setAccessible(true);
-            return fieldzz.get(this.object);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+            return wrap(method.getReturnType(), fieldzz.get(this.object));
+        } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             throw new MirrorException("Error while trying to get field.", e);
         }
@@ -86,7 +93,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         try {
             Method methodzz = clazz.getDeclaredMethod(method.getName(), retrieveParameterTypes(method));
             methodzz.setAccessible(true);
-            return wrapResult(method.getReturnType(), methodzz.invoke(this.object, retrieveParameterObjects(args)));
+            return wrap(method.getReturnType(), methodzz.invoke(this.object, retrieveParameterObjects(args)));
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
             throw new MirrorException("Error while trying to invoke method", e);
@@ -170,7 +177,22 @@ public class MirrorHandler<T> implements InvocationHandler {
         return this.object;
     }
 
-    private Object wrapResult(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
+    private Object wrap(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
+        if (clazz.isArray()) {
+            return wrapArray(clazz.getComponentType(), (Object[]) result);
+        }
+        return wrapObject(clazz, result);
+    }
+
+    private Object wrapArray(java.lang.Class clazz, Object[] objects) throws InvocationTargetException, IllegalAccessException {
+        Object[] results = (Object[]) Array.newInstance(clazz, objects.length);
+        for (int i = 0; i < objects.length; ++i) {
+            results[i] = wrapObject(clazz, objects[i]);
+        }
+        return results;
+    }
+
+    private Object wrapObject(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
         if (isWrapperClass(clazz)) {
             Object object = Mirror.create(clazz);
             Method setInstance = findSetInstanceMethod(clazz);
