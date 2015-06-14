@@ -25,4 +25,8 @@ public class PublicDummyClass {
 
     private void doStuff(PrivateDummyClass privateDummyClass) {
     }
+
+    int unwrapParametersAndReturnArraySize(PrivateDummyClass[] privateDummies){
+        return privateDummies.length;
+    }
 }
