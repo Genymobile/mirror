@@ -167,6 +167,9 @@ public class MirrorHandler<T> implements InvocationHandler {
     }
 
     private java.lang.Class unwrapParameterArray(java.lang.Class clazz) {
+        if (clazz.getComponentType().isPrimitive()) {
+            return clazz;
+        }
         return Array.newInstance(unwrapParameterType(clazz.getComponentType()), 0).getClass();
     }
 
@@ -183,7 +186,8 @@ public class MirrorHandler<T> implements InvocationHandler {
 
     private Object unwrap(Object object) {
         if (object.getClass().isArray()) {
-            return unwrapArray((Object[]) object);
+            return object.getClass().getComponentType().isPrimitive() ?
+                    object : unwrapArray((Object[]) object);
         }
         return unwrapObject(object);
     }

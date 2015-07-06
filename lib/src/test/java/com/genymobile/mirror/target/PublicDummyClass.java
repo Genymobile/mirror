@@ -29,4 +29,7 @@ public class PublicDummyClass {
     int unwrapParametersAndReturnArraySize(PrivateDummyClass[] privateDummies){
         return privateDummies.length;
     }
+    int doNotUnwrapPrimiteAndReturnArraySize(long[] primitives){
+        return primitives.length;
+    }
 }

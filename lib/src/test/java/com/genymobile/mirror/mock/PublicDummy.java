@@ -45,4 +45,6 @@ public interface PublicDummy {
     void doStuff(PrivateDummy privateDummy);
 
     int unwrapParametersAndReturnArraySize(PrivateDummy[] privateDummies);
+
+    int doNotUnwrapPrimiteAndReturnArraySize(long[] privateDummies);
 }

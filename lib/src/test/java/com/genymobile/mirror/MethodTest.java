@@ -69,4 +69,12 @@ public class MethodTest {
 
         assert(result == 5);
     }
+
+    @Test
+    public void checkThatPassingPrimitiveAsParameterDoNotUnwrapThem() {
+        long[] array = new long[5];
+        int result = dummy.doNotUnwrapPrimiteAndReturnArraySize(array);
+
+        assert(result == 5);
+    }
 }
