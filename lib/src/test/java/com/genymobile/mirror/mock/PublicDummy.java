@@ -43,4 +43,8 @@ public interface PublicDummy {
     Object throwExceptionMethod(String string);
 
     void doStuff(PrivateDummy privateDummy);
+
+    int unwrapParametersAndReturnArraySize(PrivateDummy[] privateDummies);
+
+    int doNotUnwrapPrimiteAndReturnArraySize(long[] privateDummies);
 }

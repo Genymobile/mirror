@@ -61,4 +61,20 @@ public class MethodTest {
         assert(array.getClass() == PrivateDummy[].class);
         assert(array.length == 2);
     }
+
+    @Test
+    public void checkThatPassingWrappedObjectAsParameterUnwrapThem() {
+        PrivateDummy[] array = new PrivateDummy[5];
+        int result = dummy.unwrapParametersAndReturnArraySize(array);
+
+        assert(result == 5);
+    }
+
+    @Test
+    public void checkThatPassingPrimitiveAsParameterDoNotUnwrapThem() {
+        long[] array = new long[5];
+        int result = dummy.doNotUnwrapPrimiteAndReturnArraySize(array);
+
+        assert(result == 5);
+    }
 }

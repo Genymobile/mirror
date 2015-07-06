@@ -91,7 +91,7 @@ public class MirrorHandler<T> implements InvocationHandler {
 
     private Object invokeMethod(Method method, Object[] args) {
         try {
-            Method methodzz = clazz.getDeclaredMethod(method.getName(), retrieveParameterTypes(method));
+            Method methodzz = clazz.getDeclaredMethod(method.getName(), retrieveParameters(method));
             methodzz.setAccessible(true);
             return wrap(method.getReturnType(), methodzz.invoke(this.object, retrieveParameterObjects(args)));
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
@@ -127,7 +127,7 @@ public class MirrorHandler<T> implements InvocationHandler {
     }
 
     private void buildAndStoreInstance(Method method, Object[] args) {
-        java.lang.Class[] classList = retrieveParameterTypes(method);
+        java.lang.Class[] classList = retrieveParameters(method);
         try {
             java.lang.reflect.Constructor<?> constructor = clazz.getDeclaredConstructor(classList);
             constructor.setAccessible(true);
@@ -138,22 +138,39 @@ public class MirrorHandler<T> implements InvocationHandler {
         }
     }
 
-    private java.lang.Class[] retrieveParameterTypes(Method method) {
+    private java.lang.Class[] retrieveParameters(Method method) {
         java.lang.Class[] genuineTypes = method.getParameterTypes();
         java.lang.Class[] types = new java.lang.Class[genuineTypes.length];
 
         for (int i = 0; i < genuineTypes.length; ++i) {
-            types[i] = genuineTypes[i];
-            Class annotation = (Class) types[i].getAnnotation(Class.class);
-            if (annotation != null) {
-                try {
-                    types[i] = java.lang.Class.forName(annotation.value());
-                } catch (ClassNotFoundException e) {
-                    throw new MirrorException("Cannot find class for this type.", e);
-                }
-            }
+            types[i] = unwrapParameter(genuineTypes[i]);
         }
         return types;
+    }
+
+    private java.lang.Class unwrapParameter(java.lang.Class clazz) {
+        return clazz.isArray() ?
+                unwrapParameterArray(clazz) :
+                unwrapParameterType(clazz);
+    }
+
+    private java.lang.Class unwrapParameterType(java.lang.Class clazz) {
+        Class annotation = (Class) clazz.getAnnotation(Class.class);
+        if (annotation != null) {
+            try {
+                return java.lang.Class.forName(annotation.value());
+            } catch (ClassNotFoundException e) {
+                throw new MirrorException("Cannot find class for this type.", e);
+            }
+        }
+        return clazz;
+    }
+
+    private java.lang.Class unwrapParameterArray(java.lang.Class clazz) {
+        if (clazz.getComponentType().isPrimitive()) {
+            return clazz;
+        }
+        return Array.newInstance(unwrapParameterType(clazz.getComponentType()), 0).getClass();
     }
 
     private java.lang.Object[] retrieveParameterObjects(Object[] genuineObject) {
@@ -162,15 +179,39 @@ public class MirrorHandler<T> implements InvocationHandler {
         }
         Object[] objects = new Object[genuineObject.length];
         for (int i = 0; i < objects.length; ++i) {
-            objects[i] = genuineObject[i];
-            if (Proxy.isProxyClass(objects[i].getClass())) {
-                InvocationHandler invocationHandler = Proxy.getInvocationHandler(objects[i]);
-                if (invocationHandler instanceof MirrorHandler) {
-                    objects[i] = ((MirrorHandler) invocationHandler).getInstance();
-                }
-            }
+            objects[i] = unwrap(genuineObject[i]);
         }
         return objects;
+    }
+
+    private Object unwrap(Object object) {
+        if (object.getClass().isArray()) {
+            return object.getClass().getComponentType().isPrimitive() ?
+                    object : unwrapArray((Object[]) object);
+        }
+        return unwrapObject(object);
+    }
+
+    private Object unwrapArray(Object[] objects) {
+        Object[] result = (Object[]) Array.newInstance(unwrapParameterType(objects.getClass().getComponentType()), objects.length);
+        for (int i = 0; i < result.length; ++i) {
+            result[i] = unwrapObject(objects[i]);
+        }
+        return result;
+    }
+
+
+    private Object unwrapObject(Object object) {
+        if (object == null) {
+            return object;
+        }
+        if (Proxy.isProxyClass(object.getClass())) {
+            InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
+            if (invocationHandler instanceof MirrorHandler) {
+                return ((MirrorHandler) invocationHandler).getInstance();
+            }
+        }
+        return object;
     }
 
     private Object getInstance() {
