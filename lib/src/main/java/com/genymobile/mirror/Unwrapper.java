@@ -10,26 +10,24 @@ import java.lang.reflect.Proxy;
 /* package */ class Unwrapper {
 
     public static Object unwrap(Object object) {
-        if (object.getClass().isArray()) {
-            return object.getClass().getComponentType().isPrimitive() ?
-                    object : unwrapArray((Object[]) object);
-        }
-        return unwrapObject(object);
+        if (object == null) return null;
+        return object.getClass().isArray() ?
+                unwrapArray(object) :
+                unwrapObject(object);
     }
 
-    private static Object unwrapArray(Object[] objects) {
-        Object[] result = (Object[]) Array.newInstance(unwrapParameterType(objects.getClass().getComponentType()), objects.length);
+    private static Object unwrapArray(Object object) {
+        if (object.getClass().getComponentType().isPrimitive()) return object;
+        Object[] objects = (Object[]) object;
+        Object[] result = (Object[]) Array.newInstance(unwrapSimpleClass(objects.getClass().getComponentType()), objects.length);
         for (int i = 0; i < result.length; ++i) {
-            result[i] = unwrapObject(objects[i]);
+            result[i] = unwrap(objects[i]);
         }
         return result;
     }
 
     private static Object unwrapObject(Object object) {
-        if (object == null) {
-            return object;
-        }
-        if (Proxy.isProxyClass(object.getClass())) {
+        if (object != null && Proxy.isProxyClass(object.getClass())) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
             if (invocationHandler instanceof MirrorHandler) {
                 return ((MirrorHandler) invocationHandler).getInstance();
@@ -38,13 +36,16 @@ import java.lang.reflect.Proxy;
         return object;
     }
 
-    public static java.lang.Class unwrapParameter(java.lang.Class clazz) {
+    public static java.lang.Class unwrapClass(java.lang.Class clazz) {
+        if (clazz.isPrimitive()) {
+            return clazz;
+        }
         return clazz.isArray() ?
-                unwrapParameterArray(clazz) :
-                unwrapParameterType(clazz);
+                unwrapArrayClass(clazz) :
+                unwrapSimpleClass(clazz);
     }
 
-    private static java.lang.Class unwrapParameterType(java.lang.Class clazz) {
+    private static java.lang.Class unwrapSimpleClass(java.lang.Class clazz) {
         com.genymobile.mirror.annotation.Class annotation = (Class) clazz.getAnnotation(Class.class);
         if (annotation != null) {
             try {
@@ -56,11 +57,7 @@ import java.lang.reflect.Proxy;
         return clazz;
     }
 
-    private static java.lang.Class unwrapParameterArray(java.lang.Class clazz) {
-        if (clazz.getComponentType().isPrimitive()) {
-            return clazz;
-        }
-        return Array.newInstance(unwrapParameterType(clazz.getComponentType()), 0).getClass();
+    private static java.lang.Class unwrapArrayClass(java.lang.Class clazz) {
+        return Array.newInstance(unwrapClass(clazz.getComponentType()), 0).getClass();
     }
-
 }

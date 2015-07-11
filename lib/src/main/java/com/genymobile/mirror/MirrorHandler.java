@@ -14,7 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static com.genymobile.mirror.Unwrapper.unwrap;
-import static com.genymobile.mirror.Unwrapper.unwrapParameter;
+import static com.genymobile.mirror.Unwrapper.unwrapClass;
 import static com.genymobile.mirror.Wrapper.wrap;
 
 public class MirrorHandler<T> implements InvocationHandler {
@@ -144,7 +144,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         java.lang.Class[] types = new java.lang.Class[genuineTypes.length];
 
         for (int i = 0; i < genuineTypes.length; ++i) {
-            types[i] = unwrapParameter(genuineTypes[i]);
+            types[i] = unwrapClass(genuineTypes[i]);
         }
         return types;
     }
