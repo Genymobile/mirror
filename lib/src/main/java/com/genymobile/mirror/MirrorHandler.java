@@ -6,15 +6,16 @@ import com.genymobile.mirror.annotation.GetField;
 import com.genymobile.mirror.annotation.GetInstance;
 import com.genymobile.mirror.annotation.SetField;
 import com.genymobile.mirror.annotation.SetInstance;
-import com.genymobile.mirror.exception.MirrorDeveloperException;
 import com.genymobile.mirror.exception.MirrorException;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+
+import static com.genymobile.mirror.Unwrapper.unwrap;
+import static com.genymobile.mirror.Unwrapper.unwrapParameter;
+import static com.genymobile.mirror.Wrapper.wrap;
 
 public class MirrorHandler<T> implements InvocationHandler {
 
@@ -148,31 +149,6 @@ public class MirrorHandler<T> implements InvocationHandler {
         return types;
     }
 
-    private java.lang.Class unwrapParameter(java.lang.Class clazz) {
-        return clazz.isArray() ?
-                unwrapParameterArray(clazz) :
-                unwrapParameterType(clazz);
-    }
-
-    private java.lang.Class unwrapParameterType(java.lang.Class clazz) {
-        Class annotation = (Class) clazz.getAnnotation(Class.class);
-        if (annotation != null) {
-            try {
-                return java.lang.Class.forName(annotation.value());
-            } catch (ClassNotFoundException e) {
-                throw new MirrorException("Cannot find class for this type.", e);
-            }
-        }
-        return clazz;
-    }
-
-    private java.lang.Class unwrapParameterArray(java.lang.Class clazz) {
-        if (clazz.getComponentType().isPrimitive()) {
-            return clazz;
-        }
-        return Array.newInstance(unwrapParameterType(clazz.getComponentType()), 0).getClass();
-    }
-
     private java.lang.Object[] retrieveParameterObjects(Object[] genuineObject) {
         if (genuineObject == null) {
             return genuineObject;
@@ -184,77 +160,8 @@ public class MirrorHandler<T> implements InvocationHandler {
         return objects;
     }
 
-    private Object unwrap(Object object) {
-        if (object.getClass().isArray()) {
-            return object.getClass().getComponentType().isPrimitive() ?
-                    object : unwrapArray((Object[]) object);
-        }
-        return unwrapObject(object);
-    }
-
-    private Object unwrapArray(Object[] objects) {
-        Object[] result = (Object[]) Array.newInstance(unwrapParameterType(objects.getClass().getComponentType()), objects.length);
-        for (int i = 0; i < result.length; ++i) {
-            result[i] = unwrapObject(objects[i]);
-        }
-        return result;
-    }
-
-
-    private Object unwrapObject(Object object) {
-        if (object == null) {
-            return object;
-        }
-        if (Proxy.isProxyClass(object.getClass())) {
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
-            if (invocationHandler instanceof MirrorHandler) {
-                return ((MirrorHandler) invocationHandler).getInstance();
-            }
-        }
-        return object;
-    }
-
-    private Object getInstance() {
+    /* package */ Object getInstance() {
         return this.object;
     }
 
-    private Object wrap(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
-        if (clazz.isArray()) {
-            return wrapArray(clazz.getComponentType(), (Object[]) result);
-        }
-        return wrapObject(clazz, result);
-    }
-
-    private Object wrapArray(java.lang.Class clazz, Object[] objects) throws InvocationTargetException, IllegalAccessException {
-        Object[] results = (Object[]) Array.newInstance(clazz, objects.length);
-        for (int i = 0; i < objects.length; ++i) {
-            results[i] = wrapObject(clazz, objects[i]);
-        }
-        return results;
-    }
-
-    private Object wrapObject(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
-        if (isWrapperClass(clazz)) {
-            Object object = Mirror.create(clazz);
-            Method setInstance = findSetInstanceMethod(clazz);
-            setInstance.invoke(object, result);
-            return object;
-        } else {
-            return result;
-        }
-
-    }
-
-    private boolean isWrapperClass(java.lang.Class clazz) {
-        return clazz.getAnnotation(Class.class) != null;
-    }
-
-    private Method findSetInstanceMethod(java.lang.Class clazz) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.getAnnotation(SetInstance.class) != null) {
-                return method;
-            }
-        }
-        throw new MirrorDeveloperException("The class " + clazz.getName() + " has no setInstance() methods so we cannot wrap any result.");
-    }
 }
