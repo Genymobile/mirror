@@ -7,6 +7,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+/**
+ * Utility class helping unwrapping instances from proxies
+ */
 /* package */ class Unwrapper {
 
     public static Object unwrap(Object object) {
