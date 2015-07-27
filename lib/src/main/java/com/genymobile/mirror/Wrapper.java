@@ -2,7 +2,7 @@ package com.genymobile.mirror;
 
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.SetInstance;
-import com.genymobile.mirror.exception.MirrorDeveloperException;
+import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -11,10 +11,12 @@ import java.lang.reflect.Method;
 /**
  * Utility class helping wrapping object in a Proxy instance if needed
  */
-/*package*/ class Wrapper {
+class Wrapper {
 
-    /* package */ static Object wrap(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
-        if (object == null) return null;
+    public static Object wrap(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
+        if (object == null){
+            return null;
+        }
         if (clazz.isArray()) {
             return wrapArray(clazz.getComponentType(), object);
         }
@@ -22,7 +24,9 @@ import java.lang.reflect.Method;
     }
 
     private static Object wrapArray(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
-        if (object.getClass().getComponentType().isPrimitive()) return object;
+        if (object.getClass().getComponentType().isPrimitive()) {
+            return object;
+        }
         Object[] objects = (Object[]) object;
         Object[] results = (Object[]) Array.newInstance(clazz, objects.length);
         for (int i = 0; i < objects.length; ++i) {
@@ -54,7 +58,7 @@ import java.lang.reflect.Method;
                 return method;
             }
         }
-        throw new MirrorDeveloperException("The class " + clazz.getName() + " has no setInstance() methods so we cannot wrap any result.");
+        throw new MirrorException("The class " + clazz.getName() + " has no setInstance() methods so we cannot wrap any result.");
     }
 
     private static boolean isSetInstanceMethods(Method method) {

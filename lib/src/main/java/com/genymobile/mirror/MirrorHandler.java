@@ -160,8 +160,7 @@ public class MirrorHandler<T> implements InvocationHandler {
         return objects;
     }
 
-    /* package */ Object getInstance() {
+    Object getTargetInstance() {
         return this.object;
     }
-
 }

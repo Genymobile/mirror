@@ -10,19 +10,24 @@ import java.lang.reflect.Proxy;
 /**
  * Utility class helping unwrapping instances from proxies
  */
-/* package */ class Unwrapper {
+class Unwrapper {
 
     public static Object unwrap(Object object) {
-        if (object == null) return null;
+        if (object == null) {
+            return null;
+        }
         return object.getClass().isArray() ?
                 unwrapArray(object) :
                 unwrapObject(object);
     }
 
     private static Object unwrapArray(Object object) {
-        if (object.getClass().getComponentType().isPrimitive()) return object;
+        java.lang.Class componentType = object.getClass().getComponentType();
+        if (componentType.isPrimitive()) {
+            return object;
+        }
         Object[] objects = (Object[]) object;
-        Object[] result = (Object[]) Array.newInstance(unwrapSimpleClass(objects.getClass().getComponentType()), objects.length);
+        Object[] result = (Object[]) Array.newInstance(unwrapSimpleClass(componentType), objects.length);
         for (int i = 0; i < result.length; ++i) {
             result[i] = unwrap(objects[i]);
         }
@@ -33,7 +38,7 @@ import java.lang.reflect.Proxy;
         if (object != null && Proxy.isProxyClass(object.getClass())) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
             if (invocationHandler instanceof MirrorHandler) {
-                return ((MirrorHandler) invocationHandler).getInstance();
+                return ((MirrorHandler) invocationHandler).getTargetInstance();
             }
         }
         return object;
