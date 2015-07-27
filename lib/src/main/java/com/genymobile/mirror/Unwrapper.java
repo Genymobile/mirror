@@ -12,7 +12,7 @@ import java.lang.reflect.Proxy;
  */
 class Unwrapper {
 
-    public static Object unwrap(Object object) {
+    public Object unwrap(Object object) {
         if (object == null) {
             return null;
         }
@@ -21,7 +21,7 @@ class Unwrapper {
                 unwrapObject(object);
     }
 
-    private static Object unwrapArray(Object object) {
+    private Object unwrapArray(Object object) {
         java.lang.Class componentType = object.getClass().getComponentType();
         if (componentType.isPrimitive()) {
             return object;
@@ -34,7 +34,7 @@ class Unwrapper {
         return result;
     }
 
-    private static Object unwrapObject(Object object) {
+    private Object unwrapObject(Object object) {
         if (object != null && Proxy.isProxyClass(object.getClass())) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
             if (invocationHandler instanceof MirrorHandler) {
@@ -44,7 +44,7 @@ class Unwrapper {
         return object;
     }
 
-    public static java.lang.Class unwrapClass(java.lang.Class clazz) {
+    public java.lang.Class unwrapClass(java.lang.Class clazz) {
         if (clazz.isPrimitive()) {
             return clazz;
         }
@@ -53,7 +53,7 @@ class Unwrapper {
                 unwrapSimpleClass(clazz);
     }
 
-    private static java.lang.Class unwrapSimpleClass(java.lang.Class clazz) {
+    private java.lang.Class unwrapSimpleClass(java.lang.Class clazz) {
         com.genymobile.mirror.annotation.Class annotation = (Class) clazz.getAnnotation(Class.class);
         if (annotation != null) {
             try {
@@ -65,7 +65,7 @@ class Unwrapper {
         return clazz;
     }
 
-    private static java.lang.Class unwrapArrayClass(java.lang.Class clazz) {
+    private java.lang.Class unwrapArrayClass(java.lang.Class clazz) {
         return Array.newInstance(unwrapClass(clazz.getComponentType()), 0).getClass();
     }
 }
