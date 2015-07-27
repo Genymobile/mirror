@@ -17,10 +17,9 @@ class Wrapper {
         if (object == null){
             return null;
         }
-        if (clazz.isArray()) {
-            return wrapArray(clazz.getComponentType(), object);
-        }
-        return wrapObject(clazz, object);
+        return clazz.isArray() ?
+                wrapArray(clazz.getComponentType(), object) :
+                wrapObject(clazz, object);
     }
 
     private Object wrapArray(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
