@@ -9,3 +9,5 @@ lib/build/
 
 .idea/
 *.iml
+
+local.properties
