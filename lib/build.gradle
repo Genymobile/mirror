@@ -1,6 +1,8 @@
 apply plugin: 'java'
 
-version = '1.0'
+version = "0.1"                // the version of your projects
+ext.artifactId="mirror"
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
@@ -25,3 +27,4 @@ dependencies {
 }
 
 apply from: "$project.rootDir/config/java-checkstyle.gradle"
+apply from: "$project.rootDir/config/java-maven-publication.gradle"
