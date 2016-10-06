@@ -1,6 +1,6 @@
 package com.genymobile.mirror;
 
-public class ShyClass {
+public final class ShyClass {
 
     private int privateField;
 

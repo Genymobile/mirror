@@ -2,19 +2,23 @@ package com.genymobile.mirror;
 
 import java.lang.reflect.Proxy;
 
-public class Mirror {
+public final class Mirror {
 
-    private static final Wrapper wrapper;
-    private static final Unwrapper unwrapper;
+    private static final Wrapper WRAPPER;
+    private static final Unwrapper UNWRAPPER;
 
     static {
-        wrapper = new Wrapper();
-        unwrapper = new Unwrapper();
+        WRAPPER = new Wrapper();
+        UNWRAPPER = new Unwrapper();
     }
 
     public static <T> T create(java.lang.Class<T> clazz) {
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
                 new Class<?>[] {clazz},
-                new MirrorHandler(clazz, wrapper, unwrapper));
+                new MirrorHandler(clazz, WRAPPER, UNWRAPPER));
+    }
+
+    private Mirror() {
+        // don't intantiate
     }
 }

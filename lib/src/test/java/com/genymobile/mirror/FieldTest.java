@@ -4,10 +4,13 @@ import com.genymobile.mirror.exception.MirrorException;
 import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
 import com.genymobile.mirror.target.PublicDummyClass;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FieldTest {
 
@@ -45,23 +48,25 @@ public class FieldTest {
     public void checkThatRetrievingAnArrayReturnsAnArray() {
         Object array = dummy.readArray();
 
-        assert(array.getClass().isArray());
+        Class<?> arrayClass = array.getClass();
+        assertThat(arrayClass.isArray()).isTrue();
     }
 
     @Test
     public void checkThatRetrievingAnArrayWrapsObjects() {
         Object array = dummy.readWrappedArray();
 
-        assert(array.getClass().isArray());
-        assert(array.getClass().getComponentType() == PrivateDummy.class);
-        assert(((Object[]) array).length == 2);
+        Class<?> arrayClass = array.getClass();
+        assertThat(arrayClass.isArray()).isTrue();
+        assertThat(arrayClass.getComponentType()).isEqualTo(PrivateDummy.class);
+        assertThat(((Object[]) array)).hasSize(2);
     }
 
     @Test
     public void checkThatGettingAnExistingFieldReturnsProperObject() {
         String field = dummy.readField();
 
-        assert(field.equals("iam field"));
+        assertThat(field).isEqualTo("iam field");
     }
 
     @Test

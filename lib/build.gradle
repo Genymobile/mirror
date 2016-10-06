@@ -24,6 +24,7 @@ task packageToJar(type: Jar) {
 
 dependencies {
     testCompile 'junit:junit:4.7'
+    compile 'org.assertj:assertj-core:3.5.2'
 }
 
 apply from: "$project.rootDir/config/java-checkstyle.gradle"

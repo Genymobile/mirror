@@ -4,10 +4,13 @@ import com.genymobile.mirror.exception.MirrorException;
 import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
 import com.genymobile.mirror.target.PublicDummyClass;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MirrorTest {
 
@@ -22,21 +25,22 @@ public class MirrorTest {
 
     @Test
     public void checkThatDummyClassIsNotNull() {
-        assert(dummy != null);
+        assertThat(dummy).isNotNull();
     }
 
     @Test
     public void checkThatCallingConstructReturnAnNonNullInstance() {
         Object object = dummy.construct("yolo");
 
-        assert(object != null);
+        assertThat(object).isNotNull();
     }
 
     @Test
     public void checkThatCallingConstructReturnAValidInstance() {
         Object object = dummy.construct("yolo");
 
-        assert(object.getClass().getName().equals("com.genymobile.mirror.target.PrivateDummyClass"));
+        Class<?> objectClass = object.getClass();
+        assertThat(objectClass.getName()).isEqualTo("com.genymobile.mirror.target.PrivateDummyClass");
     }
 
     @Test
@@ -64,15 +68,16 @@ public class MirrorTest {
 
         publicDummy.setInstance(instance);
 
-        assert(instance == publicDummy.getInstance());
+        assertThat(instance).isEqualTo(publicDummy.getInstance());
     }
 
     @Test
     public void checkThatCallingAMethodReturningAWrapperCorrectlyWrapTheResult() {
         PublicDummy result = dummy.getPublicDummyInstance();
 
-        assert(result != null);
-        assert(result.getInstance() != null);
-        assert(PublicDummyClass.class.equals(result.getInstance().getClass()));
+        assertThat(result).isNotNull();
+        Object instance = result.getInstance();
+        assertThat(instance).isNotNull();
+        assertThat(instance.getClass()).isEqualTo(PublicDummyClass.class);
     }
 }

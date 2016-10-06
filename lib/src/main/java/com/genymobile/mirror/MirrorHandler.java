@@ -109,7 +109,7 @@ public class MirrorHandler<T> implements InvocationHandler {
     private void ensureClass() {
         if (clazz ==  null) {
             Class annotationClass = proxyClass.getAnnotation(Class.class);
-            if (annotationClass != null ) {
+            if (annotationClass != null) {
                 String clazzName = annotationClass.value();
                 try {
                     clazz = java.lang.Class.forName(clazzName);

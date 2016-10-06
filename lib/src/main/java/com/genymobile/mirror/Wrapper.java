@@ -14,12 +14,12 @@ import java.lang.reflect.Method;
 class Wrapper {
 
     public Object wrap(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
-        if (object == null){
+        if (object == null) {
             return null;
         }
-        return clazz.isArray() ?
-                wrapArray(clazz.getComponentType(), object) :
-                wrapObject(clazz, object);
+        return clazz.isArray()
+                ? wrapArray(clazz.getComponentType(), object)
+                : wrapObject(clazz, object);
     }
 
     private Object wrapArray(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
@@ -35,9 +35,9 @@ class Wrapper {
     }
 
     private Object wrapObject(java.lang.Class clazz, Object result) throws InvocationTargetException, IllegalAccessException {
-        return isClassWrappable(clazz) ?
-                createWrapperWithInstance(clazz, result) :
-                result;
+        return isClassWrappable(clazz)
+                ? createWrapperWithInstance(clazz, result)
+                : result;
     }
 
     private boolean isClassWrappable(java.lang.Class clazz) {
