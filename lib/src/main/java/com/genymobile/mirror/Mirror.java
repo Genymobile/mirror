@@ -13,9 +13,13 @@ public final class Mirror {
     }
 
     public static <T> T create(java.lang.Class<T> clazz) {
+        return create(clazz, clazz.getClassLoader());
+    }
+
+    public static <T> T create(java.lang.Class<T> clazz, ClassLoader targetClassLoader) {
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
-                new Class<?>[] {clazz},
-                new MirrorHandler(clazz, WRAPPER, UNWRAPPER));
+                new Class<?>[]{clazz},
+                new MirrorHandler(clazz, targetClassLoader, WRAPPER, UNWRAPPER));
     }
 
     private Mirror() {

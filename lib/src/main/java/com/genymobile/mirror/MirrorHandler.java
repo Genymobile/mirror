@@ -13,17 +13,19 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class MirrorHandler<T> implements InvocationHandler {
+public class MirrorHandler implements InvocationHandler {
 
-    private final java.lang.Class<T> proxyClass; //interface created by user
+    private final java.lang.Class<?> mirrorDefinition; //interface created by user
     private final Wrapper wrapper;
     private final Unwrapper unwrapper;
 
     private java.lang.Class<?> clazz; //class to mirror
+    private final ClassLoader classLoader; //classloader of the class to mirror
     private Object object; //target object
 
-    public MirrorHandler(java.lang.Class<T> proxyClass, Wrapper wrapper, Unwrapper unwrapper) {
-        this.proxyClass = proxyClass;
+    public MirrorHandler(java.lang.Class<?> mirrorDefinition, ClassLoader targetClassLoader, Wrapper wrapper, Unwrapper unwrapper) {
+        this.mirrorDefinition = mirrorDefinition;
+        this.classLoader = targetClassLoader;
         this.wrapper = wrapper;
         this.unwrapper = unwrapper;
     }
@@ -108,11 +110,11 @@ public class MirrorHandler<T> implements InvocationHandler {
      */
     private void ensureClass() {
         if (clazz ==  null) {
-            Class annotationClass = proxyClass.getAnnotation(Class.class);
+            Class annotationClass = mirrorDefinition.getAnnotation(Class.class);
             if (annotationClass != null) {
                 String clazzName = annotationClass.value();
                 try {
-                    clazz = java.lang.Class.forName(clazzName);
+                    clazz = java.lang.Class.forName(clazzName, true, classLoader);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     throw new MirrorException("Class not found", e);
