@@ -1,0 +1,37 @@
+/**
+ * This configuration allows to publish android libraries into a maven repository.
+ * You need to define in your build.gradle the following variables :
+ * version = "1.0"                // the version of your projects
+ * ext.artifactId="geny-widgets"  // the maven artifact id
+ * Use ./gradlew tasks to see the name of the publishing tasks.
+ */
+if (plugins.hasPlugin("com.android.library")) {
+
+    apply plugin: 'maven-publish'
+
+    if (!project.ext.properties.containsKey("artifactId")) {
+        ext.artifactId = project.name
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name "DockerGeny"
+                url '/mnt/maven/'
+            }
+        }
+
+        publications {
+            projectRelease(MavenPublication) {
+                artifactId project.artifactId
+                artifact "build/outputs/aar/${project.name}-release.aar"
+            }
+
+            projectSnapshot(MavenPublication) {
+                artifactId project.artifactId
+                artifact "build/outputs/aar/${project.name}-debug.aar"
+                version getVersion() + "-SNAPSHOT"
+            }
+        }
+    }
+}

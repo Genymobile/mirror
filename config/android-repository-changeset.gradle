@@ -1,0 +1,21 @@
+def getGitSha1() {
+    return 'git rev-parse HEAD'.execute().text.trim()
+}
+
+def getHgSha1() {
+    return 'hg id --debug -i -r .'.execute().text.trim()
+}
+
+def getChangeset() {
+    def git = new File(".git")
+    def hg = new File(".hg")
+    if (git.exists()) {
+        return "git: " + getGitSha1()
+    } else if (hg.exists()) {
+        return "hg: " + getHgSha1()
+    } else {
+        return "unknown"
+    }
+}
+
+android.defaultConfig.buildConfigField("String", "REPOSITORY_CHANGESET", "\"" + getChangeset() + "\"")

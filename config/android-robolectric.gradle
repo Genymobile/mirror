@@ -1,0 +1,25 @@
+android {
+    // this is needed in various project to run the connectedCheck task
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'LICENSE.txt'
+        exclude 'LICENSE'
+        exclude 'NOTICE'
+    }
+}
+
+android.testOptions.unitTests.all {
+    // configure the set of classes for JUnit tests
+    include '**/*Test.class'
+    exclude '**/instrumentation/**/*.class'
+    exclude '**/espresso/**/*.class'
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.squareup.assertj:assertj-android:1.1.1'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'org.robolectric:robolectric:3.0'
+}
