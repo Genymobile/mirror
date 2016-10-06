@@ -23,3 +23,5 @@ task packageToJar(type: Jar) {
 dependencies {
     testCompile 'junit:junit:4.7'
 }
+
+apply from: "$project.rootDir/config/java-checkstyle.gradle"

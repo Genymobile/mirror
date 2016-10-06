@@ -1,0 +1,38 @@
+task sourceArchive {
+    description "Get the source archive of the project"
+}
+
+sourceArchive << {
+    makeSourceArchive(rootProject.name)
+}
+
+project.build.dependsOn sourceArchive
+
+def makeSourceArchive(String projectName) {
+    def git = new File(".git")
+    def hg = new File(".hg")
+    def tag
+    if (git.exists()) {
+        tag = getGitSha1()
+        println("Building source archive \"${projectName}-src-${tag}.zip\" from git")
+        exec {
+            workingDir project.rootDir
+            commandLine "git", "archive", "--format=zip", "--prefix=${projectName}-src-${tag}/", "-o", "${projectName}-src-${tag}.zip", "HEAD"
+        }
+    } else if (hg.exists()) {
+        tag = getHgSha1()
+        println("Building source archive \"${projectName}-src-${tag}.zip\" from hg")
+        exec {
+            workingDir project.rootDir
+            commandLine "hg", "archive", "-t", "zip", "-r", tag, "${projectName}-src-${tag}.zip"
+        }
+    }
+}
+
+def getGitSha1() {
+    return 'git rev-parse HEAD'.execute().text.trim()
+}
+
+def getHgSha1() {
+    return 'hg id --debug -i -r .'.execute().text.trim()
+}

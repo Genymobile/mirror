@@ -1,0 +1,16 @@
+if (android.defaultConfig.minSdkVersion.mApiLevel >= 24 && android.defaultConfig.jackOptions.enabled) {
+    android.compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+} else if (android.defaultConfig.minSdkVersion.mApiLevel >= 19) {
+    android.compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+} else {
+    android.compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+}

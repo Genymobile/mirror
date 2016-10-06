@@ -1,0 +1,227 @@
+/**
+ * This script will configure the android unit test to generate coverage data with jacoco.
+ * It will also create new gradle tasks to generate coverage reports for each variant unit tests.
+ * These tasks will be named with the following pattern jacocoReportUnit${variant.name.capitalize()}
+ * It will also create new gradle tasks to generate consolidated coverage reports for each couple
+ * of variant unit tests and instrumented tests.
+ * These tasks will be named with the following pattern jacocoReportFull${variant.name.capitalize()}
+ *
+ * You will need to enable coverage for instrumented test of your build type
+ * <code>
+ *    android {
+ *      buildTypes {
+ *          debug {
+ *              testCoverageEnabled = true
+ *           }
+ *       }
+ *    }
+ * </code>
+ *
+ * You can then use the following line to generate reports (full)
+ * ./gradlew check connectedCheck jacocoReportFullDebug --continue
+ *
+ * The reports will be in the ${buildDir}/reports/jacoco/ folder.
+ */
+import groovy.transform.Field
+
+// Classes excluded from coverage report because they are generated
+// TODO some day find a way to collect this based on the content of
+// $buildDir/intermediates/source/${variant.dirName}/
+// see func getGeneratedClasses() below
+@Field private final ArrayList<String> EXCLUDED_CLASSES = ['**/R*.class',
+                                     '**/BuildConfig*.class',
+                                     '**/*$InjectAdapter.class',
+                                     '**/*$ModuleAdapter.class',
+                                     '**/*$ViewInjector*.class'
+]
+
+apply plugin: "jacoco"
+
+afterEvaluate {
+    // need to copy them to avoid concurrent modification when adding tasks
+    def testTasks = project.tasks.withType(Test).toArray([])
+    Map<?, Test> unitTestTasksByVariant = createUnitTestTaskByVariantMap(testTasks)
+
+    def androidCoverageTasks = createAndroidCoverageTaskByVariantMap(unitTestTasksByVariant.keySet())
+
+    createJacocoUnitReportTasks(unitTestTasksByVariant)
+    createFullCoverageReportTasks(androidCoverageTasks, unitTestTasksByVariant)
+}
+
+def createUnitTestTaskByVariantMap(unitTestTasks) {
+    def unitTestTasksByVariant = [:]
+    unitTestTasks.each { Test unitTestTask ->
+        def variant = findVariantsOfUnitTestTask(unitTestTask)
+        unitTestTasksByVariant.put(variant, unitTestTask)
+    }
+    return unitTestTasksByVariant
+}
+
+def findVariantsOfUnitTestTask131(unitTestTask) {
+    def variants = android.unitTestVariants
+    def unitVariant = variants.find { v->
+        def allDependencies = []
+        unitTestTask.getTaskDependencies().getDependencies().each {
+            allDependencies += it.getTaskDependencies().getDependencies()
+        }
+        v.testedVariant.javaCompile in allDependencies
+    }
+    return unitVariant.testedVariant
+}
+
+def findVariantsOfUnitTestTask(unitTestTask) {
+    def variants = []
+    if (android.hasProperty("unitTestVariants")) {
+        // since android plugin 1.3.1
+        return findVariantsOfUnitTestTask131(unitTestTask)
+    }
+    //TODO: remove the other way when most of the projets has migrate to the android plugin 1.3.1
+    if (plugins.hasPlugin("com.android.library")) {
+        variants = android.libraryVariants
+    } else if (plugins.hasPlugin("com.android.application")) {
+        variants = android.applicationVariants
+    }
+
+    def result = variants.find { v ->
+        v.javaCompile in unitTestTask.getTaskDependencies().getDependencies()
+    }
+    if (result == null ) {
+        // unittest tasks of library variant do not depend on the javaCompile task,
+        // which is weird and probably a bug in the android gradle plugin so fallback
+        // to find by name
+        result = variants.find { v ->
+            unitTestTask.name.endsWith(v.name.capitalize())
+        }
+    }
+    return result
+}
+
+def createAndroidCoverageTaskByVariantMap(variants) {
+    def androidCoverageTasks = [:]
+    variants.each {
+        def t = tasks.findByName("create${it.name.capitalize()}CoverageReport")
+        if (t != null) {
+            androidCoverageTasks.put(it, t)
+        }
+    }
+    return androidCoverageTasks
+}
+
+def createJacocoUnitReportTasks(unitTestTaskByVariant) {
+    unitTestTaskByVariant.each { variant, Test task ->
+        task.jacoco.destinationFile = file("${buildDir}/outputs/code-coverage/unit-tests/${variant.name}.ec")
+        createJacocoReportTask(variant, task)
+    }
+}
+
+def createFullCoverageReportTasks(androidCoverageTasks, Map<?, Test> unitTestTasksByVariant) {
+    androidCoverageTasks.each { variant, task ->
+        createFullCoverageReportTask(variant, unitTestTasksByVariant[variant], task)
+    }
+}
+
+/**
+ * Create a jacoco report task for  unit tests
+ *
+ * @param variant the android variant to create test for
+ * @param unitTestTask the unitTestTask of the variant
+ * @return the newly created Task
+ */
+Task createJacocoReportTask(variant, unitTestTask) {
+    def t = tasks.create(name: "jacocoReportUnit${variant.name.capitalize()}", type: JacocoReport) {
+        group = "Reporting"
+        description = "Generate Jacoco coverage reports after running tests of ${variant.name} variant."
+        reports {
+            xml.enabled = true
+            html.enabled = true
+        }
+        classDirectories = fileTree(
+                dir: "${buildDir}/intermediates/classes/${variant.dirName}",
+                excludes: this.EXCLUDED_CLASSES)
+
+        sourceDirectories = files(variant.sourceSets.collect {
+            it.java.srcDirs
+        })
+
+        executionData(unitTestTask)
+        // Bit hacky but fixes https://code.google.com/p/android/issues/detail?id=69174.
+        // This code is left here in case we encounter this issue some day.
+        // We iterate through the compiled .class tree and rename $$ to $.
+        /*
+        doFirst {
+            new File("$buildDir/intermediates/classes/").eachFileRecurse { file ->
+                if (file.name.contains('$$')) {
+                    file.renameTo(file.path.replace('$$', '$'))
+                }
+            }
+        }
+        */
+    }
+    t.mustRunAfter unitTestTask
+    return t
+}
+
+/**
+ * Get the AndroidTestCoverageReport task.
+ * Since android gradle plugin 1.3.1 the create${Variant}CoverageReport is a meta class which depends on
+ * create${Variant}AndroidTestCoverageReport. Probably to implement support for unit test coverage next.
+ * @param metaTask
+ * @param variant
+ * @return the AndroidTestCoverage report task
+ */
+def getAndroidTestCoverageReportTask(metaTask, variant) {
+    def result = metaTask.getTaskDependencies().getDependencies().find {
+        it.name == "create${variant.name.capitalize()}AndroidTestCoverageReport"
+    }
+    return result
+}
+
+/**
+ * Create a jacoco report task for consolidated unit and instrumented tests
+ *
+ * @param variant the android variant to create test for
+ * @param unitTestTask the unitTestTask of the variant
+ * @param reportInstrumentedTask the reportInstrumentedTask of the variant
+ * @return the newly created Task
+ */
+Task createFullCoverageReportTask(variant, Task unitTestTask, Task reportInstrumentedTask) {
+    if  (!reportInstrumentedTask.hasProperty("classDir")) {
+        reportInstrumentedTask = getAndroidTestCoverageReportTask(reportInstrumentedTask, variant)
+    }
+    Task t  = tasks.create(name: "jacocoReportFull${variant.name.capitalize()}", type: JacocoReport ) {
+        group = "Reporting"
+        description = "Generate Jacoco coverage reports after running both instrumented and unit tests of ${variant.name} variant."
+        reports {
+            xml.enabled = true
+            html.enabled = true
+        }
+        classDirectories = fileTree(
+                dir: reportInstrumentedTask.classDir,
+                excludes: this.EXCLUDED_CLASSES)
+
+        sourceDirectories = files(reportInstrumentedTask.sourceDir)
+        executionData(reportInstrumentedTask.coverageFile, unitTestTask.jacoco.destinationFile)
+    }
+    t.mustRunAfter unitTestTask, reportInstrumentedTask.getDependsOn()
+    return t
+}
+
+/*
+    Currently unused butmay be one day some gradle expert will make it works.
+    The android gradle plugin generates some classes and insert them into your applications.
+    These classes should not be in the coverage report as they are generated.
+    They are genereated by the gradle tasks : compile{Variant}Aidl, compile{Variant}Renderscript,
+    and others.
+    This function must retrieves all the generated classes so that we can exclude them.
+ */
+def getGeneratedClasses(variant) {
+    def tree = fileTree(dir: "$buildDir/generated/",
+            includes: ["aidl/$variant.dirName/**/*.java",
+                       "buildConfig/$variant.dirName/**/*.java",
+                       "r/$variant.dirName/**/*.java",
+                       "rs/$variant.dirName/**/*.java"])
+
+    def names = tree.getFiles().collect {
+        println "filename " + it
+    }
+}

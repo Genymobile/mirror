@@ -1,3 +1,48 @@
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+ext {
+    compileSdkVersion = 24
+    buildToolsVersion = "24.0.0"
+    supportLibrariesVersion = "24.0.0"
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.2'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    group = "com.genymobile"
+
+    repositories {
+        jcenter()
+
+        // genymobile maven repository
+        maven {
+            credentials {
+                username "genymobile"
+                password "genymobile2015"
+            }
+            url "http://maven.genymobile.com"
+        }
+    }
+
+    // Override android support library versions in all dependencies
+    configurations.all {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'com.android.support') {
+                details.useVersion rootProject.ext.supportLibrariesVersion
+            }
+        }
+    }
+}
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
