@@ -16,9 +16,9 @@ class Unwrapper {
         if (object == null) {
             return null;
         }
-        return object.getClass().isArray() ?
-                unwrapArray(object) :
-                unwrapObject(object);
+        return object.getClass().isArray()
+                ? unwrapArray(object)
+                : unwrapObject(object);
     }
 
     private Object unwrapArray(Object object) {
@@ -48,9 +48,9 @@ class Unwrapper {
         if (clazz.isPrimitive()) {
             return clazz;
         }
-        return clazz.isArray() ?
-                unwrapArrayClass(clazz) :
-                unwrapSimpleClass(clazz);
+        return clazz.isArray()
+                ? unwrapArrayClass(clazz)
+                : unwrapSimpleClass(clazz);
     }
 
     private java.lang.Class unwrapSimpleClass(java.lang.Class clazz) {

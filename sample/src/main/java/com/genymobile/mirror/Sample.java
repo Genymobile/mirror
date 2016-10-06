@@ -1,6 +1,11 @@
 package com.genymobile.mirror;
 
-public class Sample {
+public final class Sample {
+
+    private Sample() {
+        // don't intantiate
+    }
+
     public static void main(String[] args) {
 
         System.out.println("Sample Application");
