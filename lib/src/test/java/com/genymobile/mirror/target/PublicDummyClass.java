@@ -6,7 +6,7 @@ public class PublicDummyClass {
 
     private String[] array = {};
 
-    private PrivateDummyClass[] dummyArray = new PrivateDummyClass[] { new PrivateDummyClass(), new PrivateDummyClass()};
+    private PrivateDummyClass[] dummyArray = new PrivateDummyClass[]{new PrivateDummyClass(), new PrivateDummyClass()};
 
     public PublicDummyClass() {
     }
@@ -26,10 +26,11 @@ public class PublicDummyClass {
     private void doStuff(PrivateDummyClass privateDummyClass) {
     }
 
-    int unwrapParametersAndReturnArraySize(PrivateDummyClass[] privateDummies){
+    int unwrapParametersAndReturnArraySize(PrivateDummyClass[] privateDummies) {
         return privateDummies.length;
     }
-    int doNotUnwrapPrimiteAndReturnArraySize(long[] primitives){
+
+    int doNotUnwrapPrimiteAndReturnArraySize(long[] primitives) {
         return primitives.length;
     }
 }

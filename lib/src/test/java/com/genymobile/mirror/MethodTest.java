@@ -4,10 +4,13 @@ import com.genymobile.mirror.exception.MirrorException;
 import com.genymobile.mirror.mock.PrivateDummy;
 import com.genymobile.mirror.mock.PublicDummy;
 import com.genymobile.mirror.target.PublicDummyClass;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MethodTest {
 
@@ -24,7 +27,7 @@ public class MethodTest {
     public void checkThatCallingAMethodIsReturningExpectedObject() {
         String result = dummy.getString(890);
 
-        assert(result.equals("Hello World!"));
+        assertThat(result).isEqualTo("Hello World!");
     }
 
     @Rule
@@ -43,7 +46,7 @@ public class MethodTest {
 
         String result = dummy.getStaticString('b');
 
-        assert("b".equals(result));
+        assertThat(result).isEqualTo("b");
     }
 
     @Test
@@ -58,8 +61,8 @@ public class MethodTest {
     public void checkThatReturnedArraysAreCorrect() {
         PrivateDummy[] array = dummy.getDummyArray();
 
-        assert(array.getClass() == PrivateDummy[].class);
-        assert(array.length == 2);
+        assertThat(array.getClass()).isEqualTo(PrivateDummy[].class);
+        assertThat(array).hasSize(2);
     }
 
     @Test
@@ -67,7 +70,7 @@ public class MethodTest {
         PrivateDummy[] array = new PrivateDummy[5];
         int result = dummy.unwrapParametersAndReturnArraySize(array);
 
-        assert(result == 5);
+        assertThat(result).isEqualTo(5);
     }
 
     @Test
@@ -75,6 +78,6 @@ public class MethodTest {
         long[] array = new long[5];
         int result = dummy.doNotUnwrapPrimiteAndReturnArraySize(array);
 
-        assert(result == 5);
+        assertThat(result).isEqualTo(5);
     }
 }
