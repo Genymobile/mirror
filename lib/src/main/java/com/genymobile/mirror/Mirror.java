@@ -4,14 +4,6 @@ import java.lang.reflect.Proxy;
 
 public final class Mirror {
 
-    private static final Wrapper WRAPPER;
-    private static final Unwrapper UNWRAPPER;
-
-    static {
-        WRAPPER = new Wrapper();
-        UNWRAPPER = new Unwrapper();
-    }
-
     public static <T> T create(java.lang.Class<T> clazz) {
         return create(clazz, clazz.getClassLoader());
     }
@@ -19,7 +11,7 @@ public final class Mirror {
     public static <T> T create(java.lang.Class<T> clazz, ClassLoader targetClassLoader) {
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
                 new Class<?>[]{clazz},
-                new MirrorHandler(clazz, targetClassLoader, WRAPPER, UNWRAPPER));
+                new MirrorHandler(clazz, targetClassLoader, new Wrapper(targetClassLoader), new Unwrapper(targetClassLoader)));
     }
 
     private Mirror() {

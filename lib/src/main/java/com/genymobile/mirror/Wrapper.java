@@ -13,6 +13,12 @@ import java.lang.reflect.Method;
  */
 class Wrapper {
 
+    private final ClassLoader classLoader;
+
+    Wrapper(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
     public Object wrap(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
         if (object == null) {
             return null;
@@ -45,7 +51,7 @@ class Wrapper {
     }
 
     private Object createWrapperWithInstance(java.lang.Class clazz, Object instance) throws InvocationTargetException, IllegalAccessException {
-        Object object = Mirror.create(clazz);
+        Object object = Mirror.create(clazz, classLoader);
         Method setInstance = findSetInstanceMethod(clazz);
         setInstance.invoke(object, instance);
         return object;
