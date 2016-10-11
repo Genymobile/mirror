@@ -12,6 +12,12 @@ import java.lang.reflect.Proxy;
  */
 class Unwrapper {
 
+    private final ClassLoader classLoader;
+
+    Unwrapper(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
     public Object unwrap(Object object) {
         if (object == null) {
             return null;
@@ -57,7 +63,7 @@ class Unwrapper {
         com.genymobile.mirror.annotation.Class annotation = (Class) clazz.getAnnotation(Class.class);
         if (annotation != null) {
             try {
-                return java.lang.Class.forName(annotation.value());
+                return java.lang.Class.forName(annotation.value(), true, classLoader);
             } catch (ClassNotFoundException e) {
                 throw new MirrorException("Cannot find class for this type.", e);
             }
