@@ -50,7 +50,7 @@ public class MirrorHandler implements InvocationHandler {
                 ensureObjectClass();
                 return this.object;
             } else {
-                throw new MirrorException("Missing object", new Throwable());
+                throw new MirrorException("Missing instance object");
             }
         }
 
@@ -124,8 +124,8 @@ public class MirrorHandler implements InvocationHandler {
     }
 
     private void ensureObjectClass() {
-        if (object != null && object.getClass() != clazz) {
-            throw new MirrorException("Class doesn't match", new Throwable());
+        if (object != null && !clazz.isInstance(object)) {
+            throw new MirrorException("Class doesn't match: instance should be " + clazz + " but is " + object.getClass());
         }
     }
 
