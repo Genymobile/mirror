@@ -14,13 +14,6 @@ if (plugins.hasPlugin("java")) {
     }
 
     publishing {
-        repositories {
-            maven {
-                name "DockerGeny"
-                url '/mnt/maven/'
-            }
-        }
-
         publications {
             projectRelease(MavenPublication) {
                 artifactId project.artifactId

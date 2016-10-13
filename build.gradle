@@ -23,15 +23,6 @@ allprojects {
 
     repositories {
         jcenter()
-
-        // genymobile maven repository
-        maven {
-            credentials {
-                username "genymobile"
-                password "genymobile2015"
-            }
-            url "http://maven.genymobile.com"
-        }
     }
 
     // Override android support library versions in all dependencies
@@ -46,3 +37,5 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+apply from: "$project.rootDir/config/genymobile-maven-repository.gradle"
