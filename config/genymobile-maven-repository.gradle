@@ -1,0 +1,36 @@
+/**
+ * This configuration allows to use the Genymobile maven repository.
+ * It also add a publishing repository to upload artefact to.
+ * To access the Genymobile maven repository you need to define the following variable in your
+ * gradle.properties (may be set in $HOME/.gradle/gradle.properties to be set to all project)
+ * GENYMOBILE_MVN_USER=theusername
+ * GENYMOBILE_MVN_USER=thepassword
+ */
+allprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("GENYMOBILE_MVN_USER")) {
+            project.repositories {
+                // genymobile maven repository
+                maven {
+                    credentials {
+                        username "${GENYMOBILE_MVN_USER}"
+                        password "${GENYMOBILE_MVN_PASSWORD}"
+                    }
+                    url "http://maven.genymobile.com"
+                }
+            }
+        }
+
+        if (project.plugins.hasPlugin("maven-publish")) {
+            project.publishing {
+                repositories {
+                    maven {
+                        name "DockerGeny"
+                        url '/mnt/maven/'
+                    }
+                }
+            }
+        }
+    }
+
+}
