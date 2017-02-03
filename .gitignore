@@ -1,0 +1,14 @@
+.gradle
+
+sample/build/*
+sample/build
+sample/.gradle
+
+lib/build/*
+lib/build/
+
+.idea/
+*.iml
+*~
+
+local.properties

@@ -1,0 +1,53 @@
+/*
+ * Copyright (c) 2016 Genymobile
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+task sourceArchive {
+    description "Get the source archive of the project"
+}
+
+sourceArchive << {
+    makeSourceArchive(rootProject.name)
+}
+
+project.build.dependsOn sourceArchive
+
+def makeSourceArchive(String projectName) {
+    def git = new File(".git")
+    def hg = new File(".hg")
+    def tag
+    if (git.exists()) {
+        tag = getGitSha1()
+        println("Building source archive \"${projectName}-src-${tag}.zip\" from git")
+        exec {
+            workingDir project.rootDir
+            commandLine "git", "archive", "--format=zip", "--prefix=${projectName}-src-${tag}/", "-o", "${projectName}-src-${tag}.zip", "HEAD"
+        }
+    } else if (hg.exists()) {
+        tag = getHgSha1()
+        println("Building source archive \"${projectName}-src-${tag}.zip\" from hg")
+        exec {
+            workingDir project.rootDir
+            commandLine "hg", "archive", "-t", "zip", "-r", tag, "${projectName}-src-${tag}.zip"
+        }
+    }
+}
+
+def getGitSha1() {
+    return 'git rev-parse HEAD'.execute().text.trim()
+}
+
+def getHgSha1() {
+    return 'hg id --debug -i -r .'.execute().text.trim()
+}

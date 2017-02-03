@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2016 Genymobile
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+apply plugin: 'java'
+
+version = "1.0.0"
+ext.artifactId="mirror"
+archivesBaseName = "mirror"
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Mirror Library',
+                'Implementation-Version': version,
+                'Main-Class': 'com.genymobile.mirror.Mirror'
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.7'
+    testCompile 'org.assertj:assertj-core:3.5.2'
+}
+
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    pkg {
+        repo = 'genymobile-libs'
+        name = 'mirror'
+        userOrg = 'genymobile'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/Genymobile/mirror.git'
+    }
+}
+
+apply from: "$project.rootDir/config/java-checkstyle.gradle"
+apply from: "$project.rootDir/config/java-maven-publication.gradle"
+apply from: "$project.rootDir/config/genymobile-bintray.gradle"
