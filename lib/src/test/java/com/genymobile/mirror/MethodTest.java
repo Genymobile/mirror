@@ -95,4 +95,10 @@ public class MethodTest {
 
         assertThat(result).isEqualTo(5);
     }
+
+    @Test
+    public void checkThatCallingObjectMethodWorks() {
+        String result = dummy.toString();
+        assertThat(result).isNotEmpty();
+    }
 }
