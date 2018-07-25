@@ -26,4 +26,9 @@ public class PrivateDummyClass {
     private static PublicDummyClass getPublicDummyInstance() {
         return new PublicDummyClass();
     }
+
+    private static PrivateDummyClass getPrivateDummyInstance() {
+        return new PrivateDummyClass();
+    }
+
 }
