@@ -57,12 +57,10 @@ public class MirrorValidator {
             // TODO check that method has the correct signature?
         } else {
             validateMethodCall(targetClass, method);
-
         }
     }
 
     private void validateMethodCall(java.lang.Class targetClass, Method method) {
-        // validate method
         try {
             Method reflectedMethod = finder.findMethod(targetClass, method);
             validateReturnType(method, reflectedMethod.getReturnType());
@@ -92,8 +90,7 @@ public class MirrorValidator {
 
     private void validateReturnType(Method mirrorDefinitionMethod, java.lang.Class reflectedReturnType) {
         java.lang.Class<?> mirrorDefinitionReturnType = mirrorDefinitionMethod.getReturnType();
-        if ((mirrorDefinitionReturnType.isArray() && !reflectedReturnType.isArray())
-            || (!mirrorDefinitionReturnType.isArray() && reflectedReturnType.isArray())) {
+        if (mirrorDefinitionReturnType.isArray() != reflectedReturnType.isArray()) {
             throw new MirrorException(mirrorDefinitionMethod.getName() + " has incorrect return type");
         }
 

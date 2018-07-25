@@ -16,6 +16,7 @@
 package com.genymobile.mirror;
 
 import com.genymobile.mirror.annotation.Class;
+import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -68,6 +69,10 @@ class Wrapper {
     private Object createWrapperWithInstance(java.lang.Class clazz, Object instance) throws InvocationTargetException, IllegalAccessException {
         Object object = Mirror.create(clazz, classLoader);
         Method setInstance = finder.findSetInstanceMethod(clazz);
+        if (setInstance == null) {
+            throw new MirrorException("The class " + clazz.getName() +
+                    " has no @SetInstance method so we cannot wrap any result.");
+        }
         setInstance.invoke(object, instance);
         return object;
     }
