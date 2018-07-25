@@ -33,16 +33,18 @@ public class MirrorHandler implements InvocationHandler {
     private final java.lang.Class<?> mirrorDefinition; //interface created by user
     private final Wrapper wrapper;
     private final Unwrapper unwrapper;
+    private final ReflectionFinder finder;
 
     private java.lang.Class<?> clazz; //class to mirror
     private final ClassLoader classLoader; //classloader of the class to mirror
     private Object object; //target object
 
-    public MirrorHandler(java.lang.Class<?> mirrorDefinition, ClassLoader targetClassLoader, Wrapper wrapper, Unwrapper unwrapper) {
+    public MirrorHandler(java.lang.Class<?> mirrorDefinition, ClassLoader targetClassLoader, Wrapper wrapper, Unwrapper unwrapper, ReflectionFinder finder) {
         this.mirrorDefinition = mirrorDefinition;
         this.classLoader = targetClassLoader;
         this.wrapper = wrapper;
         this.unwrapper = unwrapper;
+        this.finder = finder;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class MirrorHandler implements InvocationHandler {
 
     private Object getField(GetField getField, Method method) {
         try {
-            Field fieldzz = clazz.getDeclaredField(getField.value());
+            Field fieldzz = finder.findField(clazz, getField.value());
             fieldzz.setAccessible(true);
             return wrapper.wrap(method.getReturnType(), fieldzz.get(this.object));
         } catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException e) {
@@ -98,7 +100,7 @@ public class MirrorHandler implements InvocationHandler {
     private void setField(SetField annotation, Object[] args) {
         args = retrieveParameterObjects(args);
         try {
-            Field fieldzz = clazz.getDeclaredField(annotation.value());
+            Field fieldzz = finder.findField(clazz, annotation.value());
             fieldzz.setAccessible(true);
             fieldzz.set(this.object, args[0]);
         } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
@@ -109,7 +111,7 @@ public class MirrorHandler implements InvocationHandler {
 
     private Object invokeMethod(Method method, Object[] args) {
         try {
-            Method methodzz = clazz.getDeclaredMethod(method.getName(), retrieveParameters(method));
+            Method methodzz = finder.findMethod(clazz, method);
             methodzz.setAccessible(true);
             return wrapper.wrap(method.getReturnType(), methodzz.invoke(this.object, retrieveParameterObjects(args)));
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
@@ -121,7 +123,6 @@ public class MirrorHandler implements InvocationHandler {
     /**
      * Instantiate the class to mirror if null
      * Look for Class annotation and read value if found
-     *
      */
     private void ensureClass() {
         if (clazz ==  null) {
@@ -129,7 +130,7 @@ public class MirrorHandler implements InvocationHandler {
             if (annotationClass != null) {
                 String clazzName = annotationClass.value();
                 try {
-                    clazz = java.lang.Class.forName(clazzName, true, classLoader);
+                    clazz = finder.findClass(clazzName);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     throw new MirrorException("Class not found", e);
@@ -145,25 +146,14 @@ public class MirrorHandler implements InvocationHandler {
     }
 
     private void buildAndStoreInstance(Method method, Object[] args) {
-        java.lang.Class[] classList = retrieveParameters(method);
         try {
-            java.lang.reflect.Constructor<?> constructor = clazz.getDeclaredConstructor(classList);
+            java.lang.reflect.Constructor<?> constructor = finder.findConstructor(clazz, method);
             constructor.setAccessible(true);
             this.object = constructor.newInstance(retrieveParameterObjects(args));
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             throw new MirrorException("Can't build object", e);
         }
-    }
-
-    private java.lang.Class[] retrieveParameters(Method method) {
-        java.lang.Class[] genuineTypes = method.getParameterTypes();
-        java.lang.Class[] types = new java.lang.Class[genuineTypes.length];
-
-        for (int i = 0; i < genuineTypes.length; ++i) {
-            types[i] = unwrapper.unwrapClass(genuineTypes[i]);
-        }
-        return types;
     }
 
     private java.lang.Object[] retrieveParameterObjects(Object[] genuineObject) {
