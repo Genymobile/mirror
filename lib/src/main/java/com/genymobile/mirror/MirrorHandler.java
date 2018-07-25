@@ -47,6 +47,9 @@ public class MirrorHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+         if (method.getDeclaringClass() == Object.class) {
+            return method.invoke(this, args);
+        }
 
         ensureClass();
 
@@ -124,7 +127,7 @@ public class MirrorHandler implements InvocationHandler {
      *
      */
     private void ensureClass() {
-        if (clazz ==  null) {
+        if (clazz == null) {
             Class annotationClass = mirrorDefinition.getAnnotation(Class.class);
             if (annotationClass != null) {
                 String clazzName = annotationClass.value();
