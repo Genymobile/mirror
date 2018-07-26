@@ -72,6 +72,16 @@ public class MirrorValidatorTest {
     }
 
     @Test(expected = MirrorException.class)
+    public void testThatWrongSetInstanceMethodFails() throws Exception {
+        Mirror.validateMirrorDefinition(WrongSetInstance.class);
+    }
+
+    @Test
+    public void testThatGoodSetInstanceWorks() throws Exception {
+        Mirror.validateMirrorDefinition(GoodSetInstance.class);
+    }
+
+    @Test(expected = MirrorException.class)
     public void testThatMissingSetInstanceWhenReturningWrappedClassFails() throws Exception {
         Mirror.validateMirrorDefinition(MissingSetInstanceWhenReturningAnWrapped.class);
     }
@@ -170,6 +180,19 @@ interface GoodGetInstance {
     @GetInstance
     Object getInstance();
 }
+
+@Class("com.genymobile.mirror.target.PublicDummyClass")
+interface WrongSetInstance {
+    @SetInstance
+    Object setInstance(String in, int useless);
+}
+
+@Class("com.genymobile.mirror.target.PublicDummyClass")
+interface GoodSetInstance {
+    @SetInstance
+    void setInstance(String instance);
+}
+
 
 @Class("com.genymobile.mirror.target.PrivateDummyClass")
 interface MissingSetInstanceWhenReturningAnWrapped {
