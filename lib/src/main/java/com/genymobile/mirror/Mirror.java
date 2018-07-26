@@ -24,9 +24,23 @@ public final class Mirror {
     }
 
     public static <T> T create(java.lang.Class<T> clazz, ClassLoader targetClassLoader) {
+        Unwrapper unwrapper = new Unwrapper(targetClassLoader);
+        ReflectionFinder finder = new ReflectionFinder(targetClassLoader, unwrapper);
+        Wrapper wrapper = new Wrapper(targetClassLoader, finder);
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
                 new Class<?>[]{clazz},
-                new MirrorHandler(clazz, targetClassLoader, new Wrapper(targetClassLoader), new Unwrapper(targetClassLoader)));
+                new MirrorHandler(clazz, targetClassLoader, wrapper, unwrapper, finder));
+    }
+
+    public static void validateMirrorDefinition(java.lang.Class<?> mirrorDefinition) {
+        validateMirrorDefinition(mirrorDefinition, mirrorDefinition.getClassLoader());
+    }
+
+    public static void validateMirrorDefinition(java.lang.Class<?> mirrorDefinition, ClassLoader targetClassLoader) {
+        Unwrapper unwrapper = new Unwrapper(targetClassLoader);
+        ReflectionFinder finder = new ReflectionFinder(targetClassLoader, unwrapper);
+        MirrorValidator validator = new MirrorValidator(finder, mirrorDefinition);
+        validator.validate();
     }
 
     private Mirror() {

@@ -16,7 +16,6 @@
 package com.genymobile.mirror;
 
 import com.genymobile.mirror.annotation.Class;
-import com.genymobile.mirror.annotation.SetInstance;
 import com.genymobile.mirror.exception.MirrorException;
 
 import java.lang.reflect.Array;
@@ -29,9 +28,11 @@ import java.lang.reflect.Method;
 class Wrapper {
 
     private final ClassLoader classLoader;
+    private final ReflectionFinder finder;
 
-    Wrapper(ClassLoader classLoader) {
+    Wrapper(ClassLoader classLoader, ReflectionFinder finder) {
         this.classLoader = classLoader;
+        this.finder = finder;
     }
 
     public Object wrap(java.lang.Class clazz, Object object) throws InvocationTargetException, IllegalAccessException {
@@ -67,21 +68,13 @@ class Wrapper {
 
     private Object createWrapperWithInstance(java.lang.Class clazz, Object instance) throws InvocationTargetException, IllegalAccessException {
         Object object = Mirror.create(clazz, classLoader);
-        Method setInstance = findSetInstanceMethod(clazz);
+        Method setInstance = finder.findSetInstanceMethod(clazz);
+        if (setInstance == null) {
+            throw new MirrorException("The class " + clazz.getName() +
+                    " has no @SetInstance method so we cannot wrap any result.");
+        }
         setInstance.invoke(object, instance);
         return object;
     }
 
-    private Method findSetInstanceMethod(java.lang.Class clazz) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (isSetInstanceMethods(method)) {
-                return method;
-            }
-        }
-        throw new MirrorException("The class " + clazz.getName() + " has no setInstance() methods so we cannot wrap any result.");
-    }
-
-    private boolean isSetInstanceMethods(Method method) {
-        return method.getAnnotation(SetInstance.class) != null;
-    }
 }
