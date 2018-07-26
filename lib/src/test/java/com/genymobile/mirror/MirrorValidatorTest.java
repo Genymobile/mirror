@@ -3,6 +3,7 @@ package com.genymobile.mirror;
 import com.genymobile.mirror.annotation.Class;
 import com.genymobile.mirror.annotation.Constructor;
 import com.genymobile.mirror.annotation.GetField;
+import com.genymobile.mirror.annotation.GetInstance;
 import com.genymobile.mirror.annotation.SetInstance;
 import com.genymobile.mirror.exception.MirrorException;
 
@@ -60,9 +61,14 @@ public class MirrorValidatorTest {
         Mirror.validateMirrorDefinition(GoodMethod.class);
     }
 
+    @Test(expected = MirrorException.class)
+    public void testThatWrongGetInstanceMethodFails() throws Exception {
+        Mirror.validateMirrorDefinition(WrongGetInstance.class);
+    }
+
     @Test
-    public void testThatGoodMirrorWorks() throws Exception {
-        Mirror.validateMirrorDefinition(GoodMirror.class);
+    public void testThatGoodGetInstanceWorks() throws Exception {
+        Mirror.validateMirrorDefinition(GoodGetInstance.class);
     }
 
     @Test(expected = MirrorException.class)
@@ -73,6 +79,11 @@ public class MirrorValidatorTest {
     @Test
     public void testThatCorrectSetInstanceWhenReturningWrappedClassWorks() throws Exception {
         Mirror.validateMirrorDefinition(SetInstanceWhenReturningAnWrapped.class);
+    }
+
+    @Test
+    public void testThatGoodMirrorWorks() throws Exception {
+        Mirror.validateMirrorDefinition(GoodMirror.class);
     }
 }
 
@@ -146,6 +157,18 @@ interface GoodMirror {
     @GetField("array")
     String[] getArrayField();
 
+}
+
+@Class("com.genymobile.mirror.target.PublicDummyClass")
+interface WrongGetInstance {
+    @GetInstance
+    void getInstance(String in);
+}
+
+@Class("com.genymobile.mirror.target.PublicDummyClass")
+interface GoodGetInstance {
+    @GetInstance
+    Object getInstance();
 }
 
 @Class("com.genymobile.mirror.target.PrivateDummyClass")

@@ -52,11 +52,21 @@ public class MirrorValidator {
         } else if (method.getAnnotation(SetField.class) != null) {
             validateSetField(targetClass, method);
         } else if (method.getAnnotation(GetInstance.class) != null) {
-            // TODO check that method has the correct signature? only the correct return type?
+            validateGetInstance(method);
         } else if (method.getAnnotation(SetInstance.class) != null) {
             // TODO check that method has the correct signature?
         } else {
             validateMethodCall(targetClass, method);
+        }
+    }
+
+    private void validateGetInstance(Method method) {
+        java.lang.Class<?> returnType = method.getReturnType();
+        if (!Object.class.equals(returnType)) {
+            throw new MirrorException("@GetInstance method must returns an Object instead of " + returnType.getName());
+        }
+        if (method.getParameterCount() > 0) {
+            throw new MirrorException("@GetInstance method must not take any parameters. They will be ignored");
         }
     }
 
