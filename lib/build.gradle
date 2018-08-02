@@ -49,4 +49,5 @@ bintray {
 
 apply from: "$project.rootDir/config/java-checkstyle.gradle"
 apply from: "$project.rootDir/config/java-maven-publication.gradle"
+apply from: "$project.rootDir/config/source-license.gradle"
 apply from: "$project.rootDir/config/genymobile-bintray.gradle"

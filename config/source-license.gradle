@@ -1,0 +1,28 @@
+/**
+ * You need to add the plugin in you root build.gradle file
+ *
+ * ```
+ *  buildscript {
+ *    repositories {
+ *      maven {
+ *        url "https://plugins.gradle.org/m2/"
+ *      }
+ *    }
+ *    dependencies {
+ *      classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+ *    }
+ *  }
+ * ```
+ *
+ * You need to define a License header file in "$rootDir/config/license/header.txt"
+ */
+
+
+apply plugin: "com.github.hierynomus.license"
+
+license {
+    header = file("$rootDir/config/license/header.txt")
+
+    excludes(["*.webp", "*.png"])
+}
+
