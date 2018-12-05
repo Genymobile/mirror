@@ -70,8 +70,8 @@ class Wrapper {
         Object object = Mirror.create(clazz, classLoader);
         Method setInstance = finder.findSetInstanceMethod(clazz);
         if (setInstance == null) {
-            throw new MirrorException("The class " + clazz.getName() +
-                    " has no @SetInstance method so we cannot wrap any result.");
+            throw new MirrorException("The class " + clazz.getName()
+                    + " has no @SetInstance method so we cannot wrap any result.");
         }
         setInstance.invoke(object, instance);
         return object;
